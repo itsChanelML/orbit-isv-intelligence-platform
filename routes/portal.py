@@ -57,6 +57,63 @@ def chat():
     except Exception as e:
         return jsonify({'response': f'Orbit is unavailable right now. Error: {str(e)}'})
 
+@portal_bp.route('/portal/stack/gcp-status', methods=['GET'])
+@login_required
+def gcp_status():
+    try:
+        from services.gcp_service import get_connection_status, get_current_stack_from_gcp
+        status = get_connection_status()
+        if status['connected']:
+            stack, error = get_current_stack_from_gcp()
+            if stack:
+                # Merge GCP stack into session stack
+                current = session.get('tech_stack', [])
+                for item in stack:
+                    if item not in current:
+                        current.append(item)
+                session['tech_stack'] = current
+            status['gcp_stack'] = stack or []
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({'connected': False, 'message': str(e)})
+
+
+@portal_bp.route('/portal/stack/gcp-alerts', methods=['GET'])
+@login_required
+def gcp_alerts():
+    try:
+        from services.gcp_service import get_pending_alerts
+        alerts = get_pending_alerts()
+        return jsonify({'alerts': alerts})
+    except Exception as e:
+        return jsonify({'alerts': []})
+
+
+@portal_bp.route('/portal/stack/gcp-sync', methods=['POST'])
+@login_required
+def gcp_sync():
+    try:
+        from services.gcp_service import check_for_new_services, get_current_stack_from_gcp
+        new_services, error = check_for_new_services(
+            session_id=session.get('session_id')
+        )
+        stack, _ = get_current_stack_from_gcp()
+        if stack:
+            current = session.get('tech_stack', [])
+            for item in stack:
+                if item not in current:
+                    current.append(item)
+            session['tech_stack'] = current
+        return jsonify({
+            'status': 'ok',
+            'new_services': new_services,
+            'stack': session.get('tech_stack', []),
+            'error': error
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+
 @portal_bp.route('/portal/documents')
 @login_required
 def documents():

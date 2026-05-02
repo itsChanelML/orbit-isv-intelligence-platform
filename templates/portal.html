@@ -67,6 +67,11 @@
                 <button class="stack-add-btn" onclick="openAddStack()">+ Add</button>
             </div>
 
+            <button class="gcp-connect-btn" id="gcpBtn" onclick="syncGCP()">
+                <span id="gcpBtnText">⟳ Sync GCP</span>
+            </button>
+
+            <div id="stackItems">
             {% if stack_items %}
                 {% for item in stack_items %}
                 <div class="stack-item">
@@ -75,8 +80,9 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <span class="stack-empty">No stack connected yet</span>
+                <span class="stack-empty" id="stackEmpty">No stack connected yet</span>
             {% endif %}
+            </div>
         </div>
 
         <!-- Bottom -->
@@ -342,5 +348,68 @@ function openAddStack() {
         }).then(() => location.reload());
     }
 }
+
+async function syncGCP() {
+    const btn = document.getElementById('gcpBtn');
+    const btnText = document.getElementById('gcpBtnText');
+    if (!btn) return;
+
+    btn.classList.add('syncing');
+    btnText.textContent = '⟳ Syncing...';
+
+    try {
+        const res = await fetch('/portal/stack/gcp-sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+
+        if (data.status === 'ok') {
+            // Update stack items in sidebar
+            const container = document.getElementById('stackItems');
+            const empty = document.getElementById('stackEmpty');
+            if (data.stack && data.stack.length > 0 && container) {
+                container.innerHTML = data.stack.map(item => `
+                    <div class="stack-item">
+                        <div class="stack-item-dot"></div>
+                        <span class="stack-item-name">${item}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Fire Orbit chat alert for new services
+            if (data.new_services && data.new_services.length > 0) {
+                const names = data.new_services.map(s => s.name).join(', ');
+                const msg = `We detected new services in your GCP project: ${names}. Want to explore how to integrate ${data.new_services[0].name} with your NVIDIA DGX Cloud stack?`;
+                appendMessage('orbit', msg);
+            }
+
+            btnText.textContent = '✓ Synced';
+            setTimeout(() => { btnText.textContent = '⟳ Sync GCP'; }, 2000);
+        } else {
+            btnText.textContent = '⚠ Not configured';
+            setTimeout(() => { btnText.textContent = '⟳ Sync GCP'; }, 3000);
+        }
+    } catch (err) {
+        btnText.textContent = '✗ Error';
+        setTimeout(() => { btnText.textContent = '⟳ Sync GCP'; }, 2000);
+    }
+
+    btn.classList.remove('syncing');
+}
+
+// Check for GCP alerts on page load
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/portal/stack/gcp-alerts');
+        const data = await res.json();
+        if (data.alerts && data.alerts.length > 0) {
+            const names = data.alerts.map(a => a.name).join(', ');
+            setTimeout(() => {
+                appendMessage('orbit', `New technology detected in your GCP stack: ${names}. Ask me how to integrate it with NVIDIA NIM and DGX Cloud.`);
+            }, 1500);
+        }
+    } catch (err) {}
+});
 </script>
 {% endblock %}
