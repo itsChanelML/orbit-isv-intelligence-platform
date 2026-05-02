@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Orbit{% endblock %} — NVIDIA ISV Intelligence Platform</title>
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Base styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Orbiting background blobs -->
+    <div class="orbit-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="orbit-ring orbit-ring-1"></div>
+        <div class="orbit-ring orbit-ring-2"></div>
+    </div>
+
+    <!-- Noise texture overlay -->
+    <div class="noise-overlay"></div>
+
+    <!-- Main content -->
+    <div class="app-shell">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Base JS -->
+    <script src="{{ url_for('static', filename='js/orbit.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

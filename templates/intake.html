@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Onboarding{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intake.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="intake-shell">
+
+    <!-- Progress Sidebar -->
+    <aside class="intake-sidebar">
+        <a href="/portal" class="intake-logo">Orbit<span>.</span></a>
+
+        <div class="intake-progress-header">
+            <span class="intake-progress-label">// onboarding</span>
+            <span class="intake-progress-title">Tell us about<br>your company.</span>
+        </div>
+
+        <div class="intake-steps">
+
+            <div class="intake-step {% if step >= 1 %}{% if step > 1 %}completed{% else %}active{% endif %}{% endif %}">
+                <div class="step-indicator">{% if step > 1 %}✓{% else %}1{% endif %}</div>
+                <div class="step-text">
+                    <span class="step-name">Company</span>
+                    <span class="step-desc">Name, description, tagline</span>
+                </div>
+            </div>
+
+            <div class="intake-step {% if step >= 2 %}{% if step > 2 %}completed{% else %}active{% endif %}{% endif %}">
+                <div class="step-indicator">{% if step > 2 %}✓{% else %}2{% endif %}</div>
+                <div class="step-text">
+                    <span class="step-name">Problem</span>
+                    <span class="step-desc">What you're solving with DGX</span>
+                </div>
+            </div>
+
+            <div class="intake-step {% if step >= 3 %}{% if step > 3 %}completed{% else %}active{% endif %}{% endif %}">
+                <div class="step-indicator">{% if step > 3 %}✓{% else %}3{% endif %}</div>
+                <div class="step-text">
+                    <span class="step-name">Why NVIDIA</span>
+                    <span class="step-desc">Your platform rationale</span>
+                </div>
+            </div>
+
+            <div class="intake-step {% if step >= 4 %}{% if step > 4 %}completed{% else %}active{% endif %}{% endif %}">
+                <div class="step-indicator">{% if step > 4 %}✓{% else %}4{% endif %}</div>
+                <div class="step-text">
+                    <span class="step-name">Tools</span>
+                    <span class="step-desc">HuggingFace, LangChain, Unsloth</span>
+                </div>
+            </div>
+
+            <div class="intake-step {% if step >= 5 %}{% if step > 5 %}completed{% else %}active{% endif %}{% endif %}">
+                <div class="step-indicator">{% if step > 5 %}✓{% else %}5{% endif %}</div>
+                <div class="step-text">
+                    <span class="step-name">Your Team</span>
+                    <span class="step-desc">Size and technical context</span>
+                </div>
+            </div>
+
+            <div class="intake-step {% if step >= 6 %}{% if step > 6 %}completed{% else %}active{% endif %}{% endif %}">
+                <div class="step-indicator">{% if step > 6 %}✓{% else %}6{% endif %}</div>
+                <div class="step-text">
+                    <span class="step-name">Learning Style</span>
+                    <span class="step-desc">Rank your preferred format</span>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="intake-main">
+        <div class="intake-card" data-animate>
+
+            <!-- STEP 1: Company -->
+            {% if step == 1 %}
+            <span class="intake-turn-label">// step 01 of 06</span>
+            <h2 class="intake-question">Tell us about your company.</h2>
+            <p class="intake-hint">We'll use this to personalize your DGX Cloud integration recommendations.</p>
+
+            <form method="POST" action="/intake/step/1">
+                <div class="intake-input-group">
+
+                    <div class="intake-field">
+                        <label class="intake-field-label">Company Name</label>
+                        <input class="intake-input" type="text" name="company_name"
+                            placeholder="e.g. NovaMed AI"
+                            value="{{ intake.company_name or '' }}" required />
+                    </div>
+
+                    <div class="intake-field">
+                        <label class="intake-field-label">What do you build?</label>
+                        <textarea class="intake-textarea" name="company_description"
+                            placeholder="Brief description of your product or platform..."
+                            required>{{ intake.company_description or '' }}</textarea>
+                    </div>
+
+                    <div class="intake-field">
+                        <label class="intake-field-label">Your Tagline</label>
+                        <input class="intake-input" type="text" name="tagline"
+                            placeholder="e.g. AI-powered diagnostics for every clinic"
+                            value="{{ intake.tagline or '' }}" required />
+                    </div>
+
+                </div>
+                <div class="intake-nav" style="margin-top: 2rem;">
+                    <button type="submit" class="intake-btn-next">Continue →</button>
+                </div>
+            </form>
+
+            <!-- STEP 2: Problem -->
+            {% elif step == 2 %}
+            <span class="intake-turn-label">// step 02 of 06</span>
+            <h2 class="intake-question">What problem are you solving with DGX Cloud?</h2>
+            <p class="intake-hint">Be specific -- this helps Orbit surface the right NIM microservices and integration patterns for your use case.</p>
+
+            <form method="POST" action="/intake/step/2">
+                <div class="intake-input-group">
+                    <div class="intake-field">
+                        <label class="intake-field-label">Your Core Problem</label>
+                        <textarea class="intake-textarea" name="problem_statement"
+                            style="min-height: 130px;"
+                            placeholder="e.g. We're processing 10TB of medical imaging data daily and need GPU-accelerated inference at sub-100ms latency..."
+                            required>{{ intake.problem_statement or '' }}</textarea>
+                    </div>
+                </div>
+                <div class="intake-nav" style="margin-top: 2rem;">
+                    <a href="/intake/step/1/back" class="intake-btn-back">← Back</a>
+                    <button type="submit" class="intake-btn-next">Continue →</button>
+                </div>
+            </form>
+
+            <!-- STEP 3: Why NVIDIA -->
+            {% elif step == 3 %}
+            <span class="intake-turn-label">// step 03 of 06</span>
+            <h2 class="intake-question">Why is NVIDIA the right platform for you?</h2>
+            <p class="intake-hint">Tell us what drew you to NVIDIA's accelerated computing stack over other options.</p>
+
+            <form method="POST" action="/intake/step/3">
+                <div class="intake-input-group">
+                    <div class="intake-field">
+                        <label class="intake-field-label">Your Rationale</label>
+                        <textarea class="intake-textarea" name="why_nvidia"
+                            style="min-height: 130px;"
+                            placeholder="e.g. We need the raw GPU throughput of H100s for our training workloads, and NIM gives us optimized inference out of the box without rebuilding our pipeline..."
+                            required>{{ intake.why_nvidia or '' }}</textarea>
+                    </div>
+                </div>
+                <div class="intake-nav" style="margin-top: 2rem;">
+                    <a href="/intake/step/2/back" class="intake-btn-back">← Back</a>
+                    <button type="submit" class="intake-btn-next">Continue →</button>
+                </div>
+            </form>
+
+            <!-- STEP 4: Tool Selection -->
+            {% elif step == 4 %}
+            <span class="intake-turn-label">// step 04 of 06</span>
+            <h2 class="intake-question">Which tools are you building with?</h2>
+            <p class="intake-hint">Select 1 or 2 tools. Orbit will show you how to integrate them with DGX Cloud based on your use case.</p>
+
+            <form method="POST" action="/intake/step/4" id="toolForm">
+                <div class="intake-input-group">
+                    <div class="tool-options" id="toolOptions">
+
+                        <div class="tool-option" data-tool="huggingface" onclick="toggleTool(this)">
+                            <div class="tool-checkbox"></div>
+                            <div class="tool-info">
+                                <span class="tool-name">HuggingFace</span>
+                                <span class="tool-desc">Model hub, Transformers, datasets, and fine-tuning pipelines</span>
+                            </div>
+                            <span class="tool-tag">OSS</span>
+                        </div>
+
+                        <div class="tool-option" data-tool="langchain" onclick="toggleTool(this)">
+                            <div class="tool-checkbox"></div>
+                            <div class="tool-info">
+                                <span class="tool-name">LangChain</span>
+                                <span class="tool-desc">LLM orchestration, agents, chains, and retrieval pipelines</span>
+                            </div>
+                            <span class="tool-tag">OSS</span>
+                        </div>
+
+                        <div class="tool-option" data-tool="unsloth" onclick="toggleTool(this)">
+                            <div class="tool-checkbox"></div>
+                            <div class="tool-info">
+                                <span class="tool-name">Unsloth</span>
+                                <span class="tool-desc">Fast fine-tuning with 2x speed and 60% less memory usage</span>
+                            </div>
+                            <span class="tool-tag">OSS</span>
+                        </div>
+
+                    </div>
+                    <span class="tool-limit-note" id="toolLimitNote">Select at least 1, at most 2</span>
+                    <input type="hidden" name="selected_tools" id="selectedToolsInput" />
+                </div>
+
+                <div class="intake-nav" style="margin-top: 2rem;">
+                    <a href="/intake/step/3/back" class="intake-btn-back">← Back</a>
+                    <button type="submit" class="intake-btn-next" id="toolNextBtn" disabled
+                        style="opacity:0.5; cursor:not-allowed;">Continue →</button>
+                </div>
+            </form>
+
+            <!-- STEP 5: Team Context -->
+            {% elif step == 5 %}
+            <span class="intake-turn-label">// step 05 of 06</span>
+            <h2 class="intake-question">Tell us about your team.</h2>
+            <p class="intake-hint">This helps Orbit tailor the depth and format of your DGX Cloud integration output.</p>
+
+            <form method="POST" action="/intake/step/5" id="teamForm">
+                <div class="intake-input-group">
+
+                    <div class="team-options">
+
+                        <div class="team-option" data-team="solo" onclick="selectTeam(this)">
+                            <div class="team-radio"></div>
+                            <div class="team-info">
+                                <span class="team-name">Solo Technical Founder</span>
+                                <span class="team-desc">I'm the only engineer — give me something I can execute alone</span>
+                            </div>
+                        </div>
+
+                        <div class="team-option" data-team="engineering_team" onclick="selectTeam(this)">
+                            <div class="team-radio"></div>
+                            <div class="team-info">
+                                <span class="team-name">Engineering Team</span>
+                                <span class="team-desc">We have a technical team ready to build and integrate</span>
+                            </div>
+                        </div>
+
+                        <div class="team-size-row" id="teamSizeRow">
+                            <span class="team-size-label">Team size:</span>
+                            <input class="team-size-input" type="number" name="team_size"
+                                id="teamSizeInput" min="2" max="500" placeholder="e.g. 8" />
+                            <span class="team-size-label">engineers</span>
+                        </div>
+
+                        <div class="team-option" data-team="exec_facing" onclick="selectTeam(this)">
+                            <div class="team-radio"></div>
+                            <div class="team-info">
+                                <span class="team-name">Exec-Facing Output</span>
+                                <span class="team-desc">I need a high-level overview to present to leadership</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <input type="hidden" name="team_context" id="teamContextInput" />
+                </div>
+
+                <div class="intake-nav" style="margin-top: 2rem;">
+                    <a href="/intake/step/4/back" class="intake-btn-back">← Back</a>
+                    <button type="submit" class="intake-btn-next" id="teamNextBtn" disabled
+                        style="opacity:0.5; cursor:not-allowed;">Continue →</button>
+                </div>
+            </form>
+
+            <!-- STEP 6: Learning Format Ranking -->
+            {% elif step == 6 %}
+            <span class="intake-turn-label">// step 06 of 06</span>
+            <h2 class="intake-question">How does your team learn best?</h2>
+            <p class="intake-hint">Drag to rank your preferred adoption format. Orbit will generate your #1 choice as your primary deliverable.</p>
+
+            <form method="POST" action="/intake/step/6" id="rankForm">
+                <div class="intake-input-group">
+
+                    <div class="rank-options" id="rankOptions">
+
+                        <div class="rank-item" draggable="true" data-format="workshop">
+                            <div class="rank-number">1</div>
+                            <div class="rank-info">
+                                <span class="rank-name">Workshop</span>
+                                <span class="rank-desc">Facilitated team session with structured exercises and discussion</span>
+                            </div>
+                            <span class="drag-handle">⠿</span>
+                        </div>
+
+                        <div class="rank-item" draggable="true" data-format="notebook">
+                            <div class="rank-number">2</div>
+                            <div class="rank-info">
+                                <span class="rank-name">Jupyter Notebook</span>
+                                <span class="rank-desc">Step-by-step technical lab you can run and build from independently</span>
+                            </div>
+                            <span class="drag-handle">⠿</span>
+                        </div>
+
+                        <div class="rank-item" draggable="true" data-format="hackathon">
+                            <div class="rank-number">3</div>
+                            <div class="rank-info">
+                                <span class="rank-name">Internal Hackathon</span>
+                                <span class="rank-desc">Structured problem brief for your team to tackle collaboratively</span>
+                            </div>
+                            <span class="drag-handle">⠿</span>
+                        </div>
+
+                    </div>
+
+                    <input type="hidden" name="format_ranking" id="formatRankingInput" value="workshop,notebook,hackathon" />
+                </div>
+
+                <div class="intake-nav" style="margin-top: 2rem;">
+                    <a href="/intake/step/5/back" class="intake-btn-back">← Back</a>
+                    <button type="submit" class="intake-btn-next">Generate Recommendations →</button>
+                </div>
+            </form>
+
+            {% endif %}
+
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Tool Selection (Step 4) ──
+let selectedTools = [];
+
+function toggleTool(el) {
+    const tool = el.dataset.tool;
+    const isSelected = el.classList.contains('selected');
+    const allOptions = document.querySelectorAll('.tool-option');
+
+    if (isSelected) {
+        el.classList.remove('selected');
+        el.querySelector('.tool-checkbox').textContent = '';
+        selectedTools = selectedTools.filter(t => t !== tool);
+    } else {
+        if (selectedTools.length >= 2) return;
+        el.classList.add('selected');
+        el.querySelector('.tool-checkbox').textContent = '✓';
+        selectedTools.push(tool);
+    }
+
+    // Disable unselected if 2 chosen
+    allOptions.forEach(opt => {
+        if (!opt.classList.contains('selected') && selectedTools.length >= 2) {
+            opt.classList.add('disabled');
+        } else {
+            opt.classList.remove('disabled');
+        }
+    });
+
+    // Update hidden input and button
+    const input = document.getElementById('selectedToolsInput');
+    const btn = document.getElementById('toolNextBtn');
+    if (input) input.value = selectedTools.join(',');
+
+    if (btn) {
+        if (selectedTools.length >= 1) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        } else {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        }
+    }
+
+    const note = document.getElementById('toolLimitNote');
+    if (note) {
+        note.textContent = selectedTools.length === 2
+            ? 'Maximum 2 tools selected'
+            : `${selectedTools.length} selected — select at least 1, at most 2`;
+    }
+}
+
+// ── Team Selection (Step 5) ──
+function selectTeam(el) {
+    document.querySelectorAll('.team-option').forEach(opt => opt.classList.remove('selected'));
+    el.classList.add('selected');
+
+    const team = el.dataset.team;
+    const input = document.getElementById('teamContextInput');
+    const btn = document.getElementById('teamNextBtn');
+    const sizeRow = document.getElementById('teamSizeRow');
+
+    if (input) input.value = team;
+    if (sizeRow) sizeRow.classList.toggle('visible', team === 'engineering_team');
+
+    if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    }
+}
+
+// ── Drag-to-rank (Step 6) ──
+let dragSrc = null;
+
+document.querySelectorAll('.rank-item').forEach(item => {
+    item.addEventListener('dragstart', function() {
+        dragSrc = this;
+        this.classList.add('dragging');
+    });
+    item.addEventListener('dragend', function() {
+        this.classList.remove('dragging');
+        document.querySelectorAll('.rank-item').forEach(i => i.classList.remove('drag-over'));
+        updateRankNumbers();
+        updateRankInput();
+    });
+    item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (this !== dragSrc) {
+            document.querySelectorAll('.rank-item').forEach(i => i.classList.remove('drag-over'));
+            this.classList.add('drag-over');
+        }
+    });
+    item.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (this !== dragSrc) {
+            const container = document.getElementById('rankOptions');
+            const items = [...container.querySelectorAll('.rank-item')];
+            const srcIdx = items.indexOf(dragSrc);
+            const tgtIdx = items.indexOf(this);
+            if (srcIdx < tgtIdx) {
+                container.insertBefore(dragSrc, this.nextSibling);
+            } else {
+                container.insertBefore(dragSrc, this);
+            }
+        }
+    });
+});
+
+function updateRankNumbers() {
+    document.querySelectorAll('.rank-item').forEach((item, i) => {
+        item.querySelector('.rank-number').textContent = i + 1;
+    });
+}
+
+function updateRankInput() {
+    const order = [...document.querySelectorAll('.rank-item')].map(i => i.dataset.format);
+    const input = document.getElementById('formatRankingInput');
+    if (input) input.value = order.join(',');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,580 @@
+/* ============================================
+   ORBIT — Intake Flow
+   ============================================ */
+
+.intake-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Progress sidebar */
+.intake-sidebar {
+    width: 280px;
+    min-width: 280px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.75rem;
+    background: rgba(10, 10, 10, 0.85);
+    border-right: 1px solid var(--border-subtle);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 10;
+    gap: 2.5rem;
+}
+
+.intake-logo {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.intake-logo span { color: var(--nvidia-green); }
+
+.intake-progress-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.intake-progress-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.intake-progress-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Steps list */
+.intake-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+}
+
+.intake-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 0.75rem 0;
+    position: relative;
+}
+
+.intake-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: calc(0.75rem + 26px);
+    width: 1px;
+    height: calc(100% - 26px);
+    background: var(--border-subtle);
+}
+
+.intake-step.completed::after {
+    background: rgba(118, 185, 0, 0.3);
+}
+
+.step-indicator {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background: var(--bg-secondary);
+    z-index: 1;
+}
+
+.intake-step.completed .step-indicator {
+    background: rgba(118, 185, 0, 0.15);
+    border-color: var(--nvidia-green);
+    color: var(--nvidia-green);
+}
+
+.intake-step.active .step-indicator {
+    background: var(--nvidia-green);
+    border-color: var(--nvidia-green);
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 0 12px rgba(118, 185, 0, 0.3);
+}
+
+.step-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-top: 0.2rem;
+}
+
+.step-name {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    transition: color 0.2s ease;
+}
+
+.intake-step.active .step-name {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.intake-step.completed .step-name {
+    color: var(--text-secondary);
+}
+
+.step-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Main intake area */
+.intake-main {
+    margin-left: 280px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 4rem;
+    min-height: 100vh;
+}
+
+.intake-card {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.intake-turn-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--nvidia-green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.intake-question {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    line-height: 1.25;
+}
+
+.intake-hint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-top: -1rem;
+    line-height: 1.55;
+}
+
+/* Input styles */
+.intake-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.intake-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.intake-field-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.intake-input,
+.intake-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.1rem;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.intake-textarea {
+    resize: none;
+    min-height: 90px;
+    line-height: 1.6;
+}
+
+.intake-input:focus,
+.intake-textarea:focus {
+    border-color: var(--nvidia-green);
+    box-shadow: 0 0 0 3px rgba(118, 185, 0, 0.08);
+}
+
+.intake-input::placeholder,
+.intake-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* Tool selection */
+.tool-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tool-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.tool-option:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+}
+
+.tool-option.selected {
+    border-color: var(--nvidia-green);
+    background: rgba(118, 185, 0, 0.06);
+}
+
+.tool-option.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.tool-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.tool-option.selected .tool-checkbox {
+    background: var(--nvidia-green);
+    border-color: var(--nvidia-green);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.tool-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.tool-name {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tool-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.tool-tag {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--teal);
+    border: 1px solid rgba(0, 196, 204, 0.25);
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    flex-shrink: 0;
+}
+
+.tool-limit-note {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+}
+
+/* Team context options */
+.team-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.team-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.team-option:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+}
+
+.team-option.selected {
+    border-color: var(--nvidia-green);
+    background: rgba(118, 185, 0, 0.06);
+}
+
+.team-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.team-option.selected .team-radio {
+    border-color: var(--nvidia-green);
+}
+
+.team-option.selected .team-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--nvidia-green);
+}
+
+.team-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.team-name {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.team-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+/* Team size input (shown conditionally) */
+.team-size-row {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(118, 185, 0, 0.04);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-accent);
+    margin-top: -0.25rem;
+}
+
+.team-size-row.visible {
+    display: flex;
+}
+
+.team-size-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.team-size-input {
+    width: 80px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.75rem;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+    -webkit-appearance: none;
+}
+
+.team-size-input:focus {
+    border-color: var(--nvidia-green);
+}
+
+/* Ranking */
+.rank-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.rank-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    cursor: grab;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.rank-item:active {
+    cursor: grabbing;
+}
+
+.rank-item.dragging {
+    opacity: 0.5;
+    border-color: var(--nvidia-green);
+    transform: scale(1.02);
+}
+
+.rank-item.drag-over {
+    border-color: var(--teal);
+    background: rgba(0, 196, 204, 0.05);
+}
+
+.rank-number {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(118, 185, 0, 0.1);
+    border: 1px solid var(--border-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--nvidia-green);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.rank-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+}
+
+.rank-name {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.rank-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.drag-handle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    cursor: grab;
+}
+
+/* Navigation buttons */
+.intake-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+}
+
+.intake-btn-next {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.75rem;
+    background: var(--nvidia-green);
+    color: #000;
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+}
+
+.intake-btn-next:hover {
+    background: var(--nvidia-green-bright);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(118, 185, 0, 0.25);
+}
+
+.intake-btn-back {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.25rem;
+    background: none;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+.intake-btn-back:hover {
+    color: var(--text-primary);
+    border-color: var(--border-accent);
+}

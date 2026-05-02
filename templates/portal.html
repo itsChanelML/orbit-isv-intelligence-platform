@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}Portal{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="portal-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <div class="sidebar-wordmark">Orbit<span>.</span></div>
+            <div class="sidebar-dot"></div>
+        </div>
+
+        <!-- Nav -->
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Platform</span>
+
+            <a href="/portal" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+                Home
+            </a>
+
+            <a href="/intake" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="8" r="6"/>
+                    <path d="M8 5v3l2 2"/>
+                </svg>
+                Start Onboarding
+            </a>
+
+            <a href="/portal/documents" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 1h6l4 4v10H4V1z"/>
+                    <path d="M9 1v4h4"/>
+                    <path d="M6 8h5M6 11h3"/>
+                </svg>
+                My Documents
+            </a>
+
+            <span class="nav-section-label" style="margin-top: 0.5rem;">Settings</span>
+
+            <a href="/portal/profile" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="5" r="3"/>
+                    <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                </svg>
+                Profile
+            </a>
+        </nav>
+
+        <!-- Tech Stack -->
+        <div class="sidebar-stack">
+            <div class="stack-header">
+                <span class="stack-label">Tech Stack</span>
+                <button class="stack-add-btn" onclick="openAddStack()">+ Add</button>
+            </div>
+
+            {% if stack_items %}
+                {% for item in stack_items %}
+                <div class="stack-item">
+                    <div class="stack-item-dot"></div>
+                    <span class="stack-item-name">{{ item }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <span class="stack-empty">No stack connected yet</span>
+            {% endif %}
+        </div>
+
+        <!-- Bottom -->
+        <div class="sidebar-bottom">
+            <div class="user-chip">
+                <div class="user-avatar">{{ role[0].upper() }}</div>
+                <div class="user-info">
+                    <span class="user-role">{{ role }}</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
+                    <path d="M11 11l3-3-3-3M14 8H6"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- Main -->
+    <div class="portal-main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-title">Welcome to Orbit</span>
+            </div>
+            <div class="topbar-right">
+
+                {% if role == 'admin' %}
+                <div class="view-toggle">
+                    <a href="/portal" class="toggle-btn active">ISV View</a>
+                    <a href="/admin" class="toggle-btn">Admin View</a>
+                </div>
+                {% endif %}
+
+                <button class="notif-btn" title="Notifications">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M8 1a5 5 0 015 5v3l1.5 2.5H1.5L3 9V6a5 5 0 015-5z"/>
+                        <path d="M6.5 13.5a1.5 1.5 0 003 0"/>
+                    </svg>
+                    <div class="notif-badge"></div>
+                </button>
+
+            </div>
+        </header>
+
+        <!-- Body: content + chat -->
+        <div class="portal-body">
+
+            <!-- Main content -->
+            <main class="portal-content">
+                <div class="welcome-section" data-animate>
+
+                    <div class="welcome-heading">
+                        <span class="welcome-greeting">// orbit platform</span>
+                        <h1 class="welcome-title">Your DGX Cloud<br>adoption starts here.</h1>
+                        <p class="welcome-sub">
+                            Walk through a personalized onboarding flow, get context-aware DGX Cloud integration
+                            recommendations, and generate your team's adoption pathway — powered by NVIDIA NIM.
+                        </p>
+                    </div>
+
+                    <!-- Quick actions -->
+                    <div class="quick-actions">
+
+                        <a href="/intake" class="action-card">
+                            <div class="action-icon">⚡</div>
+                            <div class="action-title">Start Onboarding</div>
+                            <div class="action-desc">Begin your personalized DGX Cloud integration flow.</div>
+                        </a>
+
+                        <a href="/portal/documents" class="action-card">
+                            <div class="action-icon">📄</div>
+                            <div class="action-title">My Documents</div>
+                            <div class="action-desc">View your generated workshops, notebooks, and briefs.</div>
+                        </a>
+
+                        <a href="/portal/stack" class="action-card">
+                            <div class="action-icon">🔧</div>
+                            <div class="action-title">Tech Stack</div>
+                            <div class="action-desc">Connect your GCP project and manage your stack.</div>
+                        </a>
+
+                    </div>
+
+                    <!-- Stack tags -->
+                    <div class="flex gap-1" style="flex-wrap: wrap;">
+                        <span class="tag tag-green">nemotron-super-49b</span>
+                        <span class="tag tag-green">llama-3.1-8b</span>
+                        <span class="tag tag-green">mistral-7b</span>
+                        <span class="tag">DGX Cloud</span>
+                        <span class="tag">GCP</span>
+                        <span class="tag">NVIDIA NIM</span>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Orbit Chat Panel -->
+            <aside class="orbit-chat-panel">
+
+                <div class="chat-header">
+                    <div class="chat-orbit-icon">O</div>
+                    <div class="chat-header-info">
+                        <span class="chat-header-name">Orbit</span>
+                        <span class="chat-header-status">
+                            <div class="status-dot"></div>
+                            POWERED BY NEMOTRON
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Quick prompts -->
+                <div class="chat-quick-prompts">
+                    <span class="quick-prompt-label">Quick Actions</span>
+
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt(this)">
+                        <span>🔔</span> What's new in my stack
+                        <span class="prompt-arrow">→</span>
+                    </button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt(this)">
+                        <span>📋</span> Summarize my outputs
+                        <span class="prompt-arrow">→</span>
+                    </button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt(this)">
+                        <span>🚀</span> Explore a new use case
+                        <span class="prompt-arrow">→</span>
+                    </button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt(this)">
+                        <span>⚠️</span> View tech alerts
+                        <span class="prompt-arrow">→</span>
+                    </button>
+                </div>
+
+                <!-- Messages -->
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message orbit">
+                        <span class="message-sender">Orbit</span>
+                        <div class="message-bubble">
+                            Hey! I'm Orbit, your NVIDIA DGX Cloud intelligence layer. I can help you explore integrations, plan workshops, and navigate your stack. What would you like to work on?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div class="chat-input-area">
+                    <textarea
+                        class="chat-input"
+                        id="chatInput"
+                        placeholder="Ask Orbit anything..."
+                        rows="1"
+                        onkeydown="handleChatKey(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <button class="chat-send-btn" onclick="sendChatMessage()">→</button>
+                </div>
+
+            </aside>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-resize textarea
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// Send on Enter (Shift+Enter for newline)
+function handleChatKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+    }
+}
+
+// Quick prompt click
+function sendQuickPrompt(btn) {
+    const text = btn.querySelector('span:nth-child(2)') 
+        ? btn.textContent.replace('→', '').trim().replace(/^[^\s]+\s/, '')
+        : btn.textContent.replace('→', '').trim();
+    const cleanText = btn.textContent.replace('→', '').trim();
+    document.getElementById('chatInput').value = cleanText;
+    sendChatMessage();
+}
+
+// Send message
+async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+
+    appendMessage('user', msg);
+
+    // Typing indicator
+    const typingId = appendTyping();
+
+    try {
+        const res = await fetch('/portal/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        removeTyping(typingId);
+        appendMessage('orbit', data.response || 'Something went wrong. Please try again.');
+    } catch (err) {
+        removeTyping(typingId);
+        appendMessage('orbit', 'Connection error. Please check your setup and try again.');
+    }
+}
+
+function appendMessage(role, text) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = `chat-message ${role}`;
+    div.innerHTML = `
+        <span class="message-sender">${role === 'orbit' ? 'Orbit' : 'You'}</span>
+        <div class="message-bubble">${text}</div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
+}
+
+function appendTyping() {
+    const container = document.getElementById('chatMessages');
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'chat-message orbit';
+    div.id = id;
+    div.innerHTML = `
+        <span class="message-sender">Orbit</span>
+        <div class="message-bubble" style="opacity:0.5; font-style:italic;">Thinking...</div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+function removeTyping(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
+
+function openAddStack() {
+    const name = prompt('Enter technology name (e.g. HuggingFace, LangChain):');
+    if (name && name.trim()) {
+        fetch('/portal/stack/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name.trim() })
+        }).then(() => location.reload());
+    }
+}
+</script>
+{% endblock %}

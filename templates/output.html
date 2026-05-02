@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Your Recommendations{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="output-shell">
+
+    <!-- Sidebar (reuse portal sidebar) -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="/portal" style="text-decoration:none;">
+                <div class="sidebar-wordmark">Orbit<span>.</span></div>
+            </a>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+                Home
+            </a>
+            <a href="/intake" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+                </svg>
+                Onboarding
+            </a>
+            <a href="/portal/documents" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/><path d="M6 8h5M6 11h3"/>
+                </svg>
+                My Documents
+            </a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="output-main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-title">
+                    {% if state == 'loading' %}Generating your recommendations...
+                    {% else %}Your DGX Cloud Adoption Plan{% endif %}
+                </span>
+            </div>
+            {% if state == 'results' %}
+            <div class="topbar-right">
+                <a href="/output/reset" class="restart-btn">↺ New Onboarding</a>
+            </div>
+            {% endif %}
+        </header>
+
+        <!-- LOADING STATE -->
+        {% if state == 'loading' %}
+        <div class="output-loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">INITIALIZING NEMOTRON</div>
+            <div class="loading-subtext">Analyzing your profile and generating recommendations...</div>
+        </div>
+
+        <!-- RESULTS STATE -->
+        {% elif state == 'results' %}
+        <div class="output-body" data-animate>
+
+            <!-- Header -->
+            <div class="output-header">
+                <span class="output-eyebrow">// orbit recommendations</span>
+                <h1 class="output-title">Your DGX Cloud integration plan,<br>built for {{ intake.company_name }}.</h1>
+                <div class="output-meta">
+                    {% if learning_style %}
+                    <span class="learning-badge">
+                        ◈ {{ learning_style.style_label }}
+                    </span>
+                    <span class="tag">{{ learning_style.style_description }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div>
+                <div class="section-header">
+                    <span class="section-label">// powered by nemotron-super-49b via nvidia nim</span>
+                    <span class="section-title">3 Integration Recommendations</span>
+                </div>
+
+                <div class="rec-grid">
+                    {% for rec in recommendations %}
+                    <div class="rec-card">
+                        <div class="rec-card-header">
+                            <div>
+                                <div class="rec-number">REC {{ loop.index }}</div>
+                                <div class="rec-title">{{ rec.title }}</div>
+                            </div>
+                            <span class="complexity-badge complexity-{{ rec.complexity | lower }}">
+                                {{ rec.complexity }}
+                            </span>
+                        </div>
+                        <p class="rec-description">{{ rec.description }}</p>
+                        <div class="rec-tags">
+                            {% for item in rec.nvidia_stack %}
+                            <span class="rec-tag nvidia">{{ item }}</span>
+                            {% endfor %}
+                            {% for item in rec.partner_tools %}
+                            <span class="rec-tag partner">{{ item }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Deliverable -->
+            <div>
+                <div class="section-header">
+                    <span class="section-label">// your primary deliverable</span>
+                    <span class="section-title">
+                        {% if primary_format == 'workshop' %}Workshop Facilitator Guide
+                        {% elif primary_format == 'hackathon' %}Internal Hackathon Brief
+                        {% elif primary_format == 'notebook' %}Jupyter Notebook Lab
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="deliverable-card">
+                    <div class="deliverable-header">
+                        <div class="deliverable-title-row">
+                            <span class="deliverable-type">
+                                {% if primary_format == 'workshop' %}WORKSHOP GUIDE
+                                {% elif primary_format == 'hackathon' %}HACKATHON BRIEF
+                                {% elif primary_format == 'notebook' %}JUPYTER NOTEBOOK
+                                {% endif %}
+                            </span>
+                            <span class="deliverable-name">{{ intake.company_name }} × NVIDIA DGX Cloud</span>
+                        </div>
+                        <div class="deliverable-actions">
+                            {% if primary_format == 'notebook' %}
+                            <a href="/output/download/ipynb" class="download-btn primary">↓ Download .ipynb</a>
+                            {% elif primary_format in ['workshop', 'hackathon'] %}
+                            <a href="/output/download/md" class="download-btn primary">↓ Download .md</a>
+                            <a href="/output/download/txt" class="download-btn secondary">↓ Download .txt</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Notebook preview -->
+                    {% if primary_format == 'notebook' and notebook_cells %}
+                    <div class="notebook-preview">
+                        {% for cell in notebook_cells %}
+                        <div class="nb-cell {{ cell.type }}">
+                            <div class="nb-cell-type">{{ cell.type }}</div>
+                            <div class="nb-cell-content">{{ cell.source }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Markdown preview -->
+                    {% elif deliverable_html %}
+                    <div class="markdown-preview">
+                        {{ deliverable_html | safe }}
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- Next steps -->
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; padding-bottom:3rem;">
+                <a href="/portal" class="download-btn secondary">← Back to Portal</a>
+                <a href="/output/reset" class="download-btn secondary">↺ Start New Onboarding</a>
+            </div>
+
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if state == 'loading' %}
+<script>
+const messages = [
+    'INITIALIZING NEMOTRON',
+    'ANALYZING ISV PROFILE',
+    'GENERATING RECOMMENDATIONS',
+    'INFERRING LEARNING STYLE',
+    'BUILDING YOUR DELIVERABLE',
+    'ALMOST READY'
+];
+let msgIndex = 0;
+const textEl = document.getElementById('loadingText');
+
+const interval = setInterval(() => {
+    msgIndex = (msgIndex + 1) % messages.length;
+    if (textEl) textEl.textContent = messages[msgIndex];
+}, 2500);
+
+// Trigger NIM generation
+fetch('/output/run', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+        clearInterval(interval);
+        if (data.status === 'ready') {
+            window.location.href = '/output/results';
+        } else {
+            textEl.textContent = 'ERROR: ' + (data.error || 'Unknown error');
+        }
+    })
+    .catch(err => {
+        clearInterval(interval);
+        if (textEl) textEl.textContent = 'CONNECTION ERROR — Check your NVIDIA API key';
+    });
+</script>
+{% endif %}
+{% endblock %}
