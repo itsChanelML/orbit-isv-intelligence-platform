@@ -1,0 +1,42 @@
+# Environment
+.env
+*.env
+
+# GCP credentials
+*.json
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+
+# Flask sessions
+flask_session/
+
+# Data
+data/sessions.json
+data/analytics.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logs/
