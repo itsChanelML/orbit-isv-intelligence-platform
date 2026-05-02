@@ -60,11 +60,21 @@ def run():
         session['primary_format'] = primary_format
         session['output_ready'] = True
 
+        # Log completed output
+        try:
+            from services.analytics_service import log_output_generated
+            log_output_generated(
+                session_id=session.get('session_id', 'unknown'),
+                company_name=intake.get('company_name', 'Unknown'),
+                format_ranking=ranking,
+                learning_style=learning_style
+            )
+        except Exception:
+            pass
+
         return jsonify({'status': 'ready'})
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 

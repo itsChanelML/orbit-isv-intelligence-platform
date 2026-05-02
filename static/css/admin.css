@@ -1,0 +1,407 @@
+/* ============================================
+   ORBIT — Admin Dashboard
+   ============================================ */
+
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-main {
+    margin-left: 240px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.admin-body {
+    padding: 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* ── Stat Cards Row ── */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.2s ease;
+}
+
+.stat-card:hover {
+    border-color: var(--border-accent);
+}
+
+.stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-family: var(--font-body);
+    font-size: 2.4rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-value.green { color: var(--nvidia-green); }
+.stat-value.teal { color: var(--teal); }
+
+.stat-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* ── Dashboard Grid ── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.dashboard-grid.full-width {
+    grid-template-columns: 1fr;
+}
+
+/* ── Panel ── */
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-title {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.panel-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.panel-body {
+    padding: 1.25rem 1.5rem;
+}
+
+/* ── Drop-off Chart ── */
+.dropoff-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.dropoff-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.dropoff-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    width: 90px;
+    flex-shrink: 0;
+}
+
+.dropoff-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dropoff-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--nvidia-green), var(--teal));
+    transition: width 0.6s ease;
+}
+
+.dropoff-count {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    width: 24px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* ── Format Distribution ── */
+.format-dist {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.format-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.format-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.format-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.format-pct {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--nvidia-green);
+}
+
+.format-bar-wrap {
+    height: 6px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.format-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+.format-bar.notebook { background: var(--nvidia-green); }
+.format-bar.workshop { background: var(--teal); }
+.format-bar.hackathon { background: var(--violet); }
+
+/* ── Trending Topics ── */
+.trending-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.trending-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border-subtle);
+    transition: border-color 0.15s ease;
+}
+
+.trending-item:hover {
+    border-color: var(--border-accent);
+}
+
+.trending-rank {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--nvidia-green);
+    width: 20px;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+}
+
+.trending-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.trending-topic {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.trending-suggestion {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.trending-count {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* ── Learning Styles ── */
+.style-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.style-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.02);
+}
+
+.style-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.style-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.style-count {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+/* ── World Map ── */
+.map-container {
+    height: 320px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+    background: #0d1117;
+}
+
+#orbit-map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Leaflet dark override */
+.leaflet-tile {
+    filter: invert(1) grayscale(1) brightness(0.35) !important;
+}
+
+.leaflet-container {
+    background: #0a0a0a !important;
+}
+
+.orbit-map-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--nvidia-green);
+    border: 2px solid rgba(118, 185, 0, 0.4);
+    box-shadow: 0 0 8px rgba(118, 185, 0, 0.6);
+    animation: map-pulse 2s ease-in-out infinite;
+}
+
+@keyframes map-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+/* ── Recent Companies ── */
+.company-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.company-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border-subtle);
+}
+
+.company-name {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.company-format {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--teal);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ── Report Download ── */
+.report-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: rgba(118, 185, 0, 0.06);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-lg);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.report-bar-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.report-bar-title {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.report-bar-sub {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.report-actions {
+    display: flex;
+    gap: 0.5rem;
+}

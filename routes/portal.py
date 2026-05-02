@@ -32,12 +32,30 @@ def add_stack():
 @portal_bp.route('/portal/chat', methods=['POST'])
 @login_required
 def chat():
-    # Placeholder - NIM integration wired in Step 6
+    from services.nim_service import chat_with_orbit
     data = request.get_json()
     message = data.get('message', '')
-    return jsonify({
-        'response': f"I received your message: \"{message}\". NIM integration coming in the next build step — Orbit will be fully powered by Nemotron shortly."
-    })
+    history = data.get('history', [])
+    intake = session.get('intake', {})
+
+    if not message:
+        return jsonify({'response': 'Please send a message.'})
+
+    try:
+        response = chat_with_orbit(message, intake, history)
+        # Log chat for trending topics
+        try:
+            from services.analytics_service import log_chat_message
+            log_chat_message(
+                session_id=session.get('session_id', 'unknown'),
+                message=message,
+                company_name=intake.get('company_name')
+            )
+        except Exception:
+            pass
+        return jsonify({'response': response})
+    except Exception as e:
+        return jsonify({'response': f'Orbit is unavailable right now. Error: {str(e)}'})
 
 @portal_bp.route('/portal/documents')
 @login_required

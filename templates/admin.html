@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-wordmark">Orbit<span>.</span></div>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Admin</span>
+            <a href="/admin" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+                Dashboard
+            </a>
+            <a href="/admin/report/download/md" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/><path d="M6 8h5M6 11h3"/>
+                </svg>
+                Monthly Report
+            </a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="user-chip">
+                <div class="user-avatar">A</div>
+                <div class="user-info">
+                    <span class="user-role">ADMIN</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="admin-main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-title">DevRel Intelligence Dashboard</span>
+            </div>
+            <div class="topbar-right">
+                <div class="view-toggle">
+                    <a href="/portal" class="toggle-btn">ISV View</a>
+                    <a href="/admin" class="toggle-btn active">Admin View</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-body" data-animate>
+
+            <!-- Stat Cards -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-label">Total Sessions</span>
+                    <span class="stat-value">{{ stats.total_sessions }}</span>
+                    <span class="stat-sub">All time</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">ISV Sessions</span>
+                    <span class="stat-value green">{{ stats.isv_sessions }}</span>
+                    <span class="stat-sub">Unique logins</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Completions</span>
+                    <span class="stat-value teal">{{ stats.completions }}</span>
+                    <span class="stat-sub">Full onboardings</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Completion Rate</span>
+                    <span class="stat-value">{{ stats.completion_rate }}%</span>
+                    <span class="stat-sub">Sessions → output</span>
+                </div>
+            </div>
+
+            <!-- Report Bar -->
+            <div class="report-bar">
+                <div class="report-bar-text">
+                    <span class="report-bar-title">Monthly DevRel Report</span>
+                    <span class="report-bar-sub">Auto-generated summary of ISV adoption, trending topics, and recommended actions</span>
+                </div>
+                <div class="report-actions">
+                    <a href="/admin/report/download/md" class="download-btn primary">↓ Download .md</a>
+                    <a href="/admin/report/download/pdf" class="download-btn secondary">↓ Download PDF</a>
+                </div>
+            </div>
+
+            <!-- Row 1: Drop-off + Format Distribution -->
+            <div class="dashboard-grid">
+
+                <!-- Drop-off -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Intake Drop-off by Step</span>
+                        <span class="panel-label">completions</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="dropoff-bars">
+                            {% set max_completions = stats.drop_off | map(attribute='completed') | max | default(1) %}
+                            {% for step in stats.drop_off %}
+                            <div class="dropoff-row">
+                                <span class="dropoff-label">{{ step.label }}</span>
+                                <div class="dropoff-bar-wrap">
+                                    <div class="dropoff-bar" style="width: {{ ((step.completed / (max_completions if max_completions > 0 else 1)) * 100) | int }}%"></div>
+                                </div>
+                                <span class="dropoff-count">{{ step.completed }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Format Distribution -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Learning Format Preference</span>
+                        <span class="panel-label">% of selections</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="format-dist">
+                            {% for fmt in stats.format_distribution %}
+                            <div class="format-row">
+                                <div class="format-row-header">
+                                    <span class="format-name">{{ fmt.format }}</span>
+                                    <span class="format-pct">{{ fmt.percentage }}%</span>
+                                </div>
+                                <div class="format-bar-wrap">
+                                    <div class="format-bar {{ fmt.format | lower }}" style="width: {{ fmt.percentage }}%"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Row 2: Trending Topics + Learning Styles -->
+            <div class="dashboard-grid">
+
+                <!-- Trending Topics -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Trending Topics</span>
+                        <span class="panel-label">from orbit chat</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="trending-list">
+                            {% for topic in stats.trending_topics %}
+                            <div class="trending-item">
+                                <span class="trending-rank">#{{ loop.index }}</span>
+                                <div class="trending-info">
+                                    <span class="trending-topic">{{ topic.topic }}</span>
+                                    <span class="trending-suggestion">{{ topic.suggestion }}</span>
+                                </div>
+                                <span class="trending-count">{{ topic.count }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Styles -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Learning Style Profiles</span>
+                        <span class="panel-label">inferred by llama 3.1 8b</span>
+                    </div>
+                    <div class="panel-body">
+                        {% if stats.style_breakdown %}
+                        <div class="style-list">
+                            {% set style_colors = ['#76B900', '#00C4CC', '#6B3FA0', '#f59e0b', '#ef4444'] %}
+                            {% for style in stats.style_breakdown %}
+                            <div class="style-item">
+                                <div class="style-dot" style="background: {{ style_colors[loop.index0 % 5] }}"></div>
+                                <span class="style-name">{{ style.style }}</span>
+                                <span class="style-count">{{ style.count }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p style="font-size:0.82rem; color:var(--text-muted); font-style:italic;">
+                            Learning style data will appear after ISVs complete onboarding.
+                        </p>
+                        {% endif %}
+
+                        {% if stats.recent_companies %}
+                        <div style="margin-top: 1.5rem;">
+                            <div class="panel-label" style="margin-bottom: 0.75rem;">Recent Companies</div>
+                            <div class="company-list">
+                                {% for company in stats.recent_companies %}
+                                <div class="company-item">
+                                    <span class="company-name">{{ company.company }}</span>
+                                    <span class="company-format">{{ company.format }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Row 3: World Map -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Global ISV Activity</span>
+                    <span class="panel-label">{{ stats.ip_locations | length }} locations</span>
+                </div>
+                <div class="panel-body" style="padding: 0;">
+                    <div class="map-container">
+                        <div id="orbit-map"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Init map
+const map = L.map('orbit-map', {
+    center: [20, 0],
+    zoom: 2,
+    zoomControl: false,
+    attributionControl: false,
+    scrollWheelZoom: false
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 10
+}).addTo(map);
+
+// Plot ISV locations
+const locations = {{ stats.ip_locations | tojson }};
+
+locations.forEach(loc => {
+    if (loc.lat && loc.lng) {
+        const icon = L.divIcon({
+            className: '',
+            html: '<div class="orbit-map-dot"></div>',
+            iconSize: [10, 10],
+            iconAnchor: [5, 5]
+        });
+        L.marker([loc.lat, loc.lng], { icon })
+            .addTo(map)
+            .bindPopup(`<b>${loc.city || 'Unknown'}</b><br>${loc.country || ''}`);
+    }
+});
+
+// If no locations, show a placeholder message
+if (locations.length === 0) {
+    document.getElementById('orbit-map').innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-family:var(--font-mono);font-size:0.75rem;letter-spacing:0.08em;">
+            ISV LOCATION DATA WILL APPEAR HERE
+        </div>`;
+}
+</script>
+{% endblock %}
