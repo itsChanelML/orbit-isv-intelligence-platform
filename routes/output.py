@@ -1,4 +1,5 @@
 import json
+import os
 import markdown as md
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, Response
 from routes.auth import login_required
@@ -56,7 +57,13 @@ def run():
         elif primary_format == 'notebook':
             deliverable_content = generate_notebook(intake, recommendations)
 
-        session['deliverable_content'] = deliverable_content
+        # Write deliverable to file instead of session
+        import os
+        deliverable_path = os.path.join('data', f"deliverable_{session.get('session_id', 'tmp')}.txt")
+        with open(deliverable_path, 'w') as f:
+            f.write(deliverable_content)
+        session['deliverable_path'] = deliverable_path
+        session['deliverable_content'] = ''  # Don't store in cookie
         session['primary_format'] = primary_format
         session['output_ready'] = True
 
@@ -124,7 +131,11 @@ def results():
     recommendations = session.get('recommendations', [])
     learning_style = session.get('learning_style', {})
     primary_format = session.get('primary_format', 'workshop')
-    deliverable_content = session.get('deliverable_content', '')
+    deliverable_path = session.get('deliverable_path', '')
+    deliverable_content = ''
+    if deliverable_path and os.path.exists(deliverable_path):
+        with open(deliverable_path, 'r') as f:
+            deliverable_content = f.read()
 
     # Convert markdown to HTML for preview
     deliverable_html = ''
@@ -162,7 +173,11 @@ def results():
 def download(format_type):
     intake = session.get('intake', {})
     company = intake.get('company_name', 'ISV').replace(' ', '-').lower()
-    content = session.get('deliverable_content', '')
+    deliverable_path = session.get('deliverable_path', '')
+    content = ''
+    if deliverable_path and os.path.exists(deliverable_path):
+        with open(deliverable_path, 'r') as f:
+            content = f.read()
 
     if format_type == 'md':
         return Response(
@@ -191,6 +206,7 @@ def download(format_type):
 @login_required
 def reset():
     for key in ['intake', 'recommendations', 'learning_style',
-                'deliverable_content', 'primary_format', 'output_ready']:
+                'deliverable_path', 'deliverable_content', 'primary_format',
+                'output_ready', 'concern_responses', 'tech_stack']:
         session.pop(key, None)
     return redirect(url_for('intake.index'))

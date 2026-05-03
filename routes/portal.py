@@ -123,7 +123,8 @@ def gcp_sync():
 def profile():
     return render_template('portal.html',
         role=session.get('role', 'isv'),
-        stack_items=get_stack()
+        stack_items=get_stack(),
+        adoption_strategies=session.get('adoption_strategies', [])
     )
 
 @portal_bp.route('/portal/stack')
@@ -131,5 +132,6 @@ def profile():
 def stack():
     return render_template('portal.html',
         role=session.get('role', 'isv'),
-        stack_items=get_stack()
+        stack_items=get_stack(),
+        adoption_strategies=session.get('adoption_strategies', [])
     )

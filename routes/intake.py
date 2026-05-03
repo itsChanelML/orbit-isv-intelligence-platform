@@ -34,7 +34,27 @@ def domains_match(email, website):
 @intake_bp.route('/intake')
 @login_required
 def index():
-    session['intake'] = {}
+    # Preserve identity from previous session
+    previous_intake = session.get('intake', {})
+    identity_keys = ['contact_name', 'contact_email', 'company_website',
+                     'company_name', 'contact_role', 'found_in_registry',
+                     'nvidia_products', 'tier', 'welcome_message',
+                     'company_description', 'tagline', 'problem_statement']
+    preserved = {k: previous_intake.get(k) for k in identity_keys if previous_intake.get(k)}
+
+    # Clear output session data
+    for key in ['recommendations', 'learning_style', 'deliverable_path',
+                'deliverable_content', 'primary_format', 'output_ready',
+                'concern_responses']:
+        session.pop(key, None)
+
+    # Restore identity
+    session['intake'] = preserved
+
+    # Skip to step 3 if returning user
+    if preserved.get('contact_email'):
+        return redirect(url_for('intake.step', step=3))
+
     return redirect(url_for('intake.step0'))
 
 

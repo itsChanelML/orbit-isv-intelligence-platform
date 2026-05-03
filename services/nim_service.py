@@ -21,7 +21,7 @@ def _call_nim(model, messages, max_tokens=1000, temperature=0.7):
         f"{Config.NVIDIA_BASE_URL}/chat/completions",
         headers=headers,
         json=payload,
-        timeout=60
+        timeout=180
     )
     response.raise_for_status()
     return response.json()["choices"][0]["message"]["content"]
@@ -76,6 +76,17 @@ Return only the JSON array. No preamble, no markdown, no explanation."""
         if clean.startswith("json"):
             clean = clean[4:]
     clean = clean.strip()
+    # Find the actual JSON array start
+    if not clean.startswith("["):
+        start = clean.find("[")
+        if start != -1:
+            clean = clean[start:]
+    end = clean.rfind("]")
+    if end != -1:
+        clean = clean[:end+1]
+    # Fix malformed array -- Nemotron sometimes drops { after [
+    if clean.startswith('["') or clean.startswith("['"):
+        clean = clean[0] + '{' + clean[1:]
 
     try:
         return json.loads(clean)

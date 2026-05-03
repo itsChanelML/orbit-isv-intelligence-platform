@@ -1,0 +1,98 @@
+**Workshop Title and Overview**
+==========================
+
+**Title:** Accelerating Lumina Health AI with DGX Cloud: Sub-200ms Inference for Multimodal Patient Data
+**Overview:** This 90-minute workshop is designed for the Lumina Health AI ISV team to integrate NVIDIA DGX Cloud into their existing pipeline, leveraging GPU-accelerated inference for DICOM imaging and multimodal patient data fusion to achieve sub-200ms latency at scale.
+
+**Prerequisites and Setup**
+-------------------------
+
+* **Team Members:** Familiarity with Python, deep learning concepts, and current Lumina Health AI pipeline
+* **Accounts:**
+	+ NVIDIA Developer Account (for NIM access)
+	+ Google Cloud Account (for integration and monitoring)
+	+ Vercel Account (for deployment)
+* **Software:**
+	+ Docker (for local testing, if desired)
+	+ Google Cloud SDK (installed)
+	+ Vercel CLI (installed)
+* **DGX Cloud Access:** Pre-provisioned for workshop duration (provided by NVIDIA)
+
+**Learning Objectives**
+--------------------
+
+1. **Deploy GPU-Accelerated DICOM Processing:** Successfully integrate NVIDIA's `nvidia/nv-medical-imaging-segmentation` model from NIM into the Lumina Health AI pipeline using DGX Cloud.
+2. **Develop and Deploy a Multimodal Fusion Model:** Utilize NeMo on DGX Cloud to create and deploy a custom model for enhanced event prediction, integrating vital signs and DICOM imaging data.
+3. **Configure Autoscaling for Real-Time Inference:** Set up DGX Cloud autoscaling with Google Cloud Monitoring for dynamic resource adjustment across 12 hospital systems.
+
+**Agenda (90 minutes)**
+----------------------
+
+| **Time** | **Activity** | **Duration** |
+| --- | --- | --- |
+| 0:00 | **Introduction & Overview** | 5 min |
+| 0:05 | **Exercise 1: Hands-on NIM Setup** | 20 min |
+| 0:25 | **Break** | 5 min |
+| 0:30 | **Exercise 2: Tool Integration with DGX Cloud** | 30 min |
+| 1:00 | **Group Discussion** | 15 min |
+| 1:15 | **Next Steps & Resources** | 10 min |
+| 1:25 | **Workshop Conclusion** | 5 min |
+
+**Exercise 1: Hands-on NIM Setup**
+--------------------------------
+
+### **Objective:** Deploy `nvidia/nv-medical-imaging-segmentation` for GPU-Accelerated DICOM Processing
+
+1. **Access NIM:** https://nvidia.github.io/NIM/
+2. **Clone Repository:** `git clone https://github.com/NVIDIA/nv-medical-imaging-segmentation.git`
+3. **Deploy to DGX Cloud:**
+	* Navigate to DGX Cloud Dashboard
+	* Create New Deployment
+	* Upload Cloned Repository
+	* Select `nvidia/nv-medical-imaging-segmentation` Docker Image
+	* **Optimization Step:** Apply CUDA and TensorRT-LLM optimizations as per NIM documentation
+4. **Test Inference Latency:**
+	* Use Provided DICOM Dataset
+	* Measure and Record Latency
+
+**Exercise 2: Tool Integration with DGX Cloud**
+------------------------------------------
+
+### **Objective 1:** Integrate NIM Deployment with Existing Pipeline
+
+1. **API Integration:**
+	* Expose NIM Deployment API
+	* Integrate with Lumina Health AI Pipeline (Focus on Concept, Detailed Coding Optional)
+2. **Objective 2:** Initialize NeMo for Multimodal Fusion
+	* **Baseline Model:** `nvidia/nemo-huggingface-transformers`
+	* **Setup NeMo on DGX Cloud:**
+		- Deploy NeMo Environment
+		- Initialize Project for Multimodal Fusion
+
+### **Deployment and Autoscaling**
+
+1. **Deploy NeMo Model via Vercel:**
+	* Integrate with DGX Cloud
+	* Configure for Seamless Pipeline Addition
+2. **Configure DGX Cloud Autoscaling with Google Cloud Monitoring:**
+	* Set Up Metrics for 12 Hospital Systems
+	* Configure Autoscale Based on Load
+
+**Group Discussion Prompts**
+-------------------------
+
+1. **Challenges in Integrating GPU-Accelerated Workflows:** Share Initial Thoughts
+2. **Multimodal Data Fusion Strategies:** Beyond the Baseline Model
+3. **Scaling Across Diverse Hospital Systems:** Standardization and Customization
+
+**Next Steps and Resources**
+---------------------------
+
+* **NVIDIA Support:** Dedicated Contact for DGX Cloud and NIM
+* **Lumina Health AI Project Plan:**
+	+ Immediate Next Steps
+	+ Milestones for Full Integration
+* **Additional Resources:**
+	+ NVIDIA DGX Cloud Documentation: https://docs.nvidia.com/deploy/dgx-cloud/
+	+ NeMo Tutorials: https://docs.nvidia.com/deploy/nemo/tutorials/index.html
+	+ Google Cloud Monitoring Setup Guide (Provided)
