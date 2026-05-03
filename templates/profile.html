@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="/portal" style="text-decoration:none;">
+                <div class="sidebar-wordmark">Orbit<span>.</span></div>
+            </a>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Platform</span>
+            <a href="/portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+                Home
+            </a>
+            <a href="/intake" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+                </svg>
+                Adoption Strategy
+            </a>
+            {% if adoption_strategies %}
+            <div style="padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                {% for strategy in adoption_strategies | reverse %}
+                <a href="/output/results" class="nav-item" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; color: var(--text-muted);">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;">
+                        <path d="M4 1h6l4 4v10H4V1z"/>
+                    </svg>
+                    {{ strategy.short_title or strategy.date }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <a href="/portal/documents" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/><path d="M6 8h5M6 11h3"/>
+                </svg>
+                My Documents
+            </a>
+            <span class="nav-section-label" style="margin-top: 0.5rem;">Settings</span>
+            <a href="/portal/profile" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="5" r="3"/>
+                    <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                </svg>
+                Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-stack">
+            <div class="stack-header">
+                <span class="stack-label">Tech Stack</span>
+            </div>
+            {% if stack_items %}
+                {% for item in stack_items %}
+                <div class="stack-item">
+                    <div class="stack-item-dot"></div>
+                    <span class="stack-item-name">{{ item }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <span class="stack-empty">No stack connected yet</span>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="user-chip">
+                <div class="user-avatar">{{ intake.contact_name[0].upper() if intake.contact_name else 'I' }}</div>
+                <div class="user-info">
+                    <span class="user-role">{{ role }}</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="profile-main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-title">Your Profile</span>
+            </div>
+        </header>
+
+        <div class="profile-body" data-animate>
+
+            <!-- Profile Header Card -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    {{ intake.contact_name[0].upper() if intake.contact_name else 'I' }}
+                </div>
+                <div class="profile-header-info">
+                    <span class="profile-name">{{ intake.contact_name or 'ISV Member' }}</span>
+                    <span class="profile-role">{{ intake.contact_role or 'Engineer' }} at {{ intake.company_name or 'Your Company' }}</span>
+                    <span class="profile-email">{{ intake.contact_email or '' }}</span>
+                </div>
+                {% if intake.tier %}
+                <div class="profile-tier-badge">
+                    ◈ NVIDIA {{ intake.tier }} Partner
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Stats Row -->
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <span class="profile-stat-value">{{ adoption_strategies | length }}</span>
+                    <span class="profile-stat-label">Strategies Generated</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="profile-stat-value">{{ stack_items | length }}</span>
+                    <span class="profile-stat-label">Stack Technologies</span>
+                </div>
+                <div class="profile-stat">
+                    <span class="profile-stat-value">{{ intake.nvidia_products | length if intake.nvidia_products else 0 }}</span>
+                    <span class="profile-stat-label">NVIDIA Products</span>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="profile-grid">
+
+                <!-- Company Info -->
+                <div class="profile-section">
+                    <div class="profile-section-header">
+                        <span class="profile-section-title">Company</span>
+                        <span class="profile-section-label">from registry</span>
+                    </div>
+                    <div class="profile-section-body">
+                        <div class="profile-field">
+                            <span class="profile-field-label">Company Name</span>
+                            <span class="profile-field-value">{{ intake.company_name or '—' }}</span>
+                        </div>
+                        <div class="profile-field">
+                            <span class="profile-field-label">Website</span>
+                            <span class="profile-field-value">
+                                <a href="https://{{ intake.company_website }}" target="_blank">{{ intake.company_website or '—' }}</a>
+                            </span>
+                        </div>
+                        <div class="profile-field">
+                            <span class="profile-field-label">Tagline</span>
+                            <span class="profile-field-value">{{ intake.tagline or '—' }}</span>
+                        </div>
+                        <div class="profile-field">
+                            <span class="profile-field-label">Description</span>
+                            <span class="profile-field-value" style="font-size:0.83rem; color:var(--text-secondary);">
+                                {{ intake.company_description or '—' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NVIDIA Profile -->
+                <div class="profile-section">
+                    <div class="profile-section-header">
+                        <span class="profile-section-title">NVIDIA Profile</span>
+                        <span class="profile-section-label">partner data</span>
+                    </div>
+                    <div class="profile-section-body">
+                        <div class="profile-field">
+                            <span class="profile-field-label">Partner Tier</span>
+                            <span class="profile-field-value">{{ intake.tier or 'Not registered' }}</span>
+                        </div>
+                        <div class="profile-field">
+                            <span class="profile-field-label">NVIDIA Products</span>
+                            {% if intake.nvidia_products %}
+                            <div class="profile-products" style="margin-top: 0.4rem;">
+                                {% for product in intake.nvidia_products %}
+                                <span class="tag tag-green">{{ product }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="profile-field-value muted">No products on file</span>
+                            {% endif %}
+                        </div>
+                        <div class="profile-field">
+                            <span class="profile-field-label">Learning Style</span>
+                            <span class="profile-field-value">{{ learning_style.style_label if learning_style else '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Strategy History -->
+            <div class="profile-section">
+                <div class="profile-section-header">
+                    <span class="profile-section-title">Adoption Strategy History</span>
+                    <span class="profile-section-label">{{ adoption_strategies | length }} generated</span>
+                </div>
+                <div class="profile-section-body">
+                    {% if adoption_strategies %}
+                    <div class="strategy-history">
+                        {% for strategy in adoption_strategies | reverse %}
+                        <div class="strategy-entry">
+                            <div class="strategy-entry-left">
+                                <span class="strategy-entry-title">{{ strategy.short_title or 'Adoption Strategy' }}</span>
+                                <span class="strategy-entry-date">Generated {{ strategy.date }} · {{ strategy.company }}</span>
+                            </div>
+                            <span class="strategy-entry-format">{{ strategy.primary_format }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span class="profile-empty">No strategies generated yet. Start your first adoption flow to see history here.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -121,10 +121,14 @@ def gcp_sync():
 @portal_bp.route('/portal/profile')
 @login_required
 def profile():
-    return render_template('portal.html',
+    intake = session.get('intake', {})
+    learning_style = session.get('learning_style', {})
+    return render_template('profile.html',
         role=session.get('role', 'isv'),
         stack_items=get_stack(),
-        adoption_strategies=session.get('adoption_strategies', [])
+        adoption_strategies=session.get('adoption_strategies', []),
+        intake=intake,
+        learning_style=learning_style
     )
 
 @portal_bp.route('/portal/stack')
