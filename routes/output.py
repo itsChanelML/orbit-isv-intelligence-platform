@@ -61,7 +61,6 @@ def run():
         session['output_ready'] = True
 
         # Auto-add selected tools to tech stack
-
         try:
             selected_tools = intake.get('selected_tools', [])
             current_stack = session.get('tech_stack', [])
@@ -72,7 +71,31 @@ def run():
             session['tech_stack'] = current_stack
         except Exception:
             pass
-        
+
+        # Generate concern responses
+        try:
+            from services.nim_service import generate_concern_responses
+            concerns = intake.get('adoption_concerns', [])
+            concern_responses = generate_concern_responses(intake, concerns) if concerns else []
+            session['concern_responses'] = concern_responses
+        except Exception:
+            session['concern_responses'] = []
+
+        # Save adoption strategy to history
+        try:
+            from datetime import datetime, timezone
+            strategies = session.get('adoption_strategies', [])
+            strategies.append({
+                'id': len(strategies) + 1,
+                'company': intake.get('company_name', 'Unknown'),
+                'date': datetime.now(timezone.utc).strftime('%m.%d.%y'),
+                'primary_format': primary_format,
+                'tools': intake.get('selected_tools', []),
+            })
+            session['adoption_strategies'] = strategies
+        except Exception:
+            pass
+
         # Log completed output
         try:
             from services.analytics_service import log_output_generated
@@ -129,6 +152,7 @@ def results():
         primary_format=primary_format,
         deliverable_html=deliverable_html,
         notebook_cells=notebook_cells,
+        concern_responses=session.get('concern_responses', []),
         role=session.get('role', 'isv')
     )
 

@@ -10,10 +10,6 @@ def _call_nim(model, messages, max_tokens=1000, temperature=0.7):
         "Authorization": f"Bearer {Config.NVIDIA_API_KEY}",
         "Content-Type": "application/json"
     }
-    if 'nemotron' in model:
-        if not any(m.get('role') == 'system' for m in messages):
-            messages = [{"role": "system", "content": "detailed thinking off"}] + messages
-
     payload = {
         "model": model,
         "messages": messages,
@@ -25,7 +21,7 @@ def _call_nim(model, messages, max_tokens=1000, temperature=0.7):
         f"{Config.NVIDIA_BASE_URL}/chat/completions",
         headers=headers,
         json=payload,
-        timeout=120
+        timeout=60
     )
     response.raise_for_status()
     return response.json()["choices"][0]["message"]["content"]
@@ -228,8 +224,8 @@ Use real NVIDIA NIM API patterns:
 
 Return ONLY valid nbformat 4.4 JSON. No preamble."""
 
-    raw = _call_nim(Config.MODEL_CODEGEN, [{"role": "user", "content": prompt}], max_tokens=1500, temperature=0.3)
-    
+    raw = _call_nim(Config.MODEL_CODEGEN, [{"role": "user", "content": prompt}], max_tokens=3000, temperature=0.3)
+
     clean = raw.strip()
     if clean.startswith("```"):
         clean = clean.split("```")[1]
@@ -243,6 +239,73 @@ Return ONLY valid nbformat 4.4 JSON. No preamble."""
         return clean
     except Exception:
         return _fallback_notebook(intake, top_rec)
+
+
+def generate_concern_responses(intake: dict, concerns: list) -> list:
+    """
+    Nemotron: Generate responses to each adoption concern with
+    relevant developers.nvidia.com resource links.
+    """
+    if not concerns:
+        return []
+
+    company = intake.get('company_name', 'your company')
+    tools = ', '.join(intake.get('selected_tools', []))
+
+    nvidia_docs = {
+        'team lacks ml': ('NVIDIA DLI Learning Paths', 'https://developer.nvidia.com/nvidia-deep-learning-institute'),
+        'migration': ('DGX Cloud Migration Guide', 'https://docs.nvidia.com/dgx-cloud/'),
+        'cost': ('DGX Cloud Pricing Overview', 'https://www.nvidia.com/en-us/data-center/dgx-cloud/'),
+        'latency': ('TensorRT-LLM Optimization Guide', 'https://developer.nvidia.com/tensorrt'),
+        'privacy': ('NVIDIA AI Enterprise Security', 'https://www.nvidia.com/en-us/data-center/products/ai-enterprise/'),
+        'vendor lock': ('NVIDIA NIM on Multiple Clouds', 'https://developer.nvidia.com/nim'),
+        'timeline': ('NIM Quick Start Guide', 'https://docs.nvidia.com/nim/'),
+        'buy-in': ('NVIDIA ROI Calculator', 'https://www.nvidia.com/en-us/data-center/dgx-cloud/'),
+    }
+
+    concern_list = '\n'.join([f"- {c}" for c in concerns])
+
+    prompt = f"""You are Orbit, NVIDIA's ISV intelligence platform.
+
+An ISV has completed onboarding and has the following adoption concerns about DGX Cloud:
+{concern_list}
+
+Company: {company}
+Tools: {tools}
+Use case: {intake.get('problem_statement', '')}
+
+For each concern, provide a specific, reassuring response that:
+1. Directly addresses the concern with technical specifics
+2. References relevant NVIDIA products or programs
+3. Includes a relevant developers.nvidia.com resource
+
+Respond ONLY with a valid JSON array. Each object must have:
+- "concern": string (the original concern text)
+- "response": string (2-3 sentence specific response)
+- "resource_title": string (name of the NVIDIA resource)
+- "resource_url": string (full URL from developers.nvidia.com or nvidia.com)
+
+Return only the JSON array, no preamble."""
+
+    try:
+        raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=1000)
+        clean = raw.strip()
+        if clean.startswith("```"):
+            clean = clean.split("```")[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+        clean = clean.strip()
+        if not clean.startswith("["):
+            start = clean.find("[")
+            if start != -1:
+                clean = clean[start:]
+        end = clean.rfind("]")
+        if end != -1:
+            clean = clean[:end+1]
+        return json.loads(clean)
+    except Exception:
+        # Fallback responses
+        return [{"concern": c, "response": f"NVIDIA DGX Cloud and NIM microservices are designed to address this concern directly for {company}. Our team can provide detailed guidance.", "resource_title": "NVIDIA Developer Resources", "resource_url": "https://developer.nvidia.com"} for c in concerns]
 
 
 def chat_with_orbit(message: str, intake: dict, history: list) -> str:

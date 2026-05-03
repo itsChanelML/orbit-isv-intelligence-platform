@@ -136,5 +136,5 @@ Return only the JSON object."""
             'contact_role': profile.get('contact_role', ''),
             'recommended_products': profile.get('nvidia_products_recommended', []),
             'nvidia_products': profile.get('nvidia_products_all', []),
-            'tier': profile.get('tier', 'Inception')
+            'tier': profile.get('tier', 'Inception','NVIDIA Connect')
         }

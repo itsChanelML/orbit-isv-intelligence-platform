@@ -18,7 +18,8 @@ def add_to_stack(name):
 def index():
     role = session.get('role', 'isv')
     stack_items = get_stack()
-    return render_template('portal.html', role=role, stack_items=stack_items)
+    adoption_strategies = session.get('adoption_strategies', [])
+    return render_template('portal.html', role=role, stack_items=stack_items, adoption_strategies=adoption_strategies)
 
 @portal_bp.route('/portal/stack/add', methods=['POST'])
 @login_required
@@ -112,11 +113,6 @@ def gcp_sync():
         })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
-
-
-@portal_bp.route('/portal/documents')
-@login_required
-def documents():
     return render_template('portal.html',
         role=session.get('role', 'isv'),
         stack_items=get_stack()

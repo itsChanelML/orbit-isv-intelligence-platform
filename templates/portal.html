@@ -37,8 +37,21 @@
                     <circle cx="8" cy="8" r="6"/>
                     <path d="M8 5v3l2 2"/>
                 </svg>
-                Start Onboarding
+                Adoption Strategy
             </a>
+
+            {% if adoption_strategies %}
+            <div style="padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                {% for strategy in adoption_strategies | reverse %}
+                <a href="/output/results" class="nav-item" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; color: var(--text-muted);">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;">
+                        <path d="M4 1h6l4 4v10H4V1z"/>
+                    </svg>
+                    {{ strategy.date }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <a href="/portal/documents" class="nav-item">
                 <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
