@@ -20,11 +20,11 @@
 
         <div class="intake-steps">
 
-            <div class="intake-step {% if step == 0 or step == '0b' %}active{% else %}completed{% endif %}">
-                <div class="step-indicator">{% if step != 0 and step != '0b' %}✓{% else %}0{% endif %}</div>
+            <div class="intake-step {% if step == 0 or step == '0b' or step == '0c' %}active{% else %}completed{% endif %}">
+                <div class="step-indicator">{% if step != 0 and step != '0b' and step != '0c' %}✓{% else %}0{% endif %}</div>
                 <div class="step-text">
                     <span class="step-name">Identity</span>
-                    <span class="step-desc">Your name, email, website</span>
+                    <span class="step-desc">Verify your work email</span>
                 </div>
             </div>
 
@@ -38,8 +38,8 @@
                 (7, 'Your Team', 'Size and technical context'),
                 (8, 'Learning Style', 'Rank your preferred format')
             ] %}
-            <div class="intake-step {% if step == s %}active{% elif step != '0b' and step != 0 and step > s %}completed{% endif %}">
-                <div class="step-indicator">{% if step != '0b' and step != 0 and step > s %}✓{% else %}{{ s }}{% endif %}</div>
+            <div class="intake-step {% if step == s %}active{% elif step != '0b' and step != '0c' and step != 0 and step > s %}completed{% endif %}">
+                <div class="step-indicator">{% if step != '0b' and step != '0c' and step != 0 and step > s %}✓{% else %}{{ s }}{% endif %}</div>
                 <div class="step-text">
                     <span class="step-name">{{ label }}</span>
                     <span class="step-desc">{{ desc }}</span>
@@ -64,16 +64,14 @@
                 <div class="intake-input-group">
 
                     {% if error %}
-                    <div class="intake-error">
-                        <span>⚠</span> {{ error }}
-                    </div>
+                    <div class="intake-error"><span>⚠</span> {{ error }}</div>
                     {% endif %}
 
                     <div class="intake-field">
                         <label class="intake-field-label">Your Name</label>
                         <input class="intake-input" type="text" name="contact_name"
                             placeholder="e.g. Sarah Chen"
-                            value="{{ intake.contact_name or '' }}" required />
+                            value="{{ intake.contact_name or '' }}" required autofocus />
                     </div>
 
                     <div class="intake-field">
@@ -96,11 +94,53 @@
                 </div>
             </form>
 
+            <!-- STEP 0c: OTP Verification -->
+            {% elif step == '0c' %}
+            <span class="intake-turn-label">// security verification</span>
+            <h2 class="intake-question">Check your email.</h2>
+            <p class="intake-hint">We sent a 6-digit verification code to <strong style="color: var(--nvidia-green);">{{ intake.contact_email }}</strong>. Enter it below to continue.</p>
+
+            <form method="POST" action="/intake/step/0c">
+                <div class="intake-input-group">
+
+                    {% if error %}
+                    <div class="intake-error"><span>⚠</span> {{ error }}</div>
+                    {% endif %}
+
+                    <div class="intake-field">
+                        <label class="intake-field-label">Verification Code</label>
+                        <input class="intake-input otp-input" type="text" name="otp_code"
+                            placeholder="000000"
+                            maxlength="6"
+                            autocomplete="one-time-code"
+                            required autofocus />
+                    </div>
+
+                    <div class="otp-hint">
+                        <span class="otp-hint-icon">🔒</span>
+                        <span>For demo purposes, your code is: <code class="otp-demo-code">{{ otp }}</code></span>
+                    </div>
+
+                </div>
+                <div class="intake-nav" style="margin-top: 2rem;">
+                    <a href="/intake/step/0c/back" class="intake-btn-back">← Back</a>
+                    <button type="submit" class="intake-btn-next">Verify Code →</button>
+                </div>
+            </form>
+
             <!-- STEP 0b: Confirm company -->
             {% elif step == '0b' %}
-            <span class="intake-turn-label">// identity confirmed</span>
-            <h2 class="intake-question">We found your company.</h2>
+            <span class="intake-turn-label">
+                {% if intake.found_in_registry %}// found in nvidia isv registry{% else %}// identity confirmed{% endif %}
+            </span>
+            <h2 class="intake-question">
+                {% if intake.found_in_registry %}We know your company.{% else %}We found your company.{% endif %}
+            </h2>
+            {% if intake.welcome_message %}
+            <p class="intake-hint">{{ intake.welcome_message }}</p>
+            {% else %}
             <p class="intake-hint">Confirm your details below. Edit anything that looks wrong before continuing.</p>
+            {% endif %}
 
             <form method="POST" action="/intake/step/0b">
                 <div class="intake-input-group">
@@ -114,6 +154,12 @@
                             <span class="confirm-label">Website</span>
                             <span class="confirm-value">{{ intake.company_website }}</span>
                         </div>
+                        {% if intake.tier %}
+                        <div class="confirm-row">
+                            <span class="confirm-label">Status</span>
+                            <span class="confirm-value">NVIDIA {{ intake.tier }} Partner</span>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="intake-field">
@@ -130,6 +176,17 @@
                             value="{{ intake.contact_role or '' }}" required />
                     </div>
 
+                    {% if intake.nvidia_products %}
+                    <div class="nvidia-products-preview">
+                        <span class="intake-field-label" style="display:block; margin-bottom: 0.5rem;">NVIDIA Products in Your Profile</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                            {% for product in intake.nvidia_products %}
+                            <span class="tag tag-green">{{ product }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                 </div>
                 <div class="intake-nav" style="margin-top: 2rem;">
                     <a href="/intake/step/0b/back" class="intake-btn-back">← Back</a>
@@ -137,11 +194,14 @@
                 </div>
             </form>
 
-            <!-- STEP 1: Confirm use case -->
+            <!-- STEP 1: Company details -->
             {% elif step == 1 %}
             <span class="intake-turn-label">// step 01 of 08</span>
             <h2 class="intake-question">Confirm your company details.</h2>
-            <p class="intake-hint">Tell us what you build and how you describe it. This personalizes every recommendation Orbit generates.</p>
+            <p class="intake-hint">
+                {% if intake.found_in_registry %}We pre-filled this from your NVIDIA partner profile. Edit anything that needs updating.
+                {% else %}Tell us what you build and how you describe it.{% endif %}
+            </p>
 
             <form method="POST" action="/intake/step/1">
                 <div class="intake-input-group">
@@ -149,8 +209,8 @@
                     <div class="intake-field">
                         <label class="intake-field-label">Company Name</label>
                         <input class="intake-input" type="text" name="company_name"
-                            placeholder="e.g. Lumina Health AI"
-                            value="{{ intake.company_name or '' }}" required />
+                            value="{{ intake.company_name or '' }}"
+                            placeholder="e.g. Lumina Health AI" required />
                     </div>
 
                     <div class="intake-field">
@@ -163,8 +223,8 @@
                     <div class="intake-field">
                         <label class="intake-field-label">One-liner tagline</label>
                         <input class="intake-input" type="text" name="tagline"
-                            placeholder="e.g. AI-powered diagnostics for every clinic"
-                            value="{{ intake.tagline or '' }}" required />
+                            value="{{ intake.tagline or '' }}"
+                            placeholder="e.g. AI-powered diagnostics for every clinic" required />
                     </div>
 
                 </div>
@@ -185,9 +245,7 @@
 
                     <div class="stack-preset-options" id="stackPresets">
                         {% for item in ['PyTorch', 'TensorFlow', 'HuggingFace', 'LangChain', 'Kubernetes', 'Docker', 'FastAPI', 'AWS', 'Azure', 'GCP', 'Snowflake', 'Databricks', 'Spark', 'Kafka', 'PostgreSQL', 'MongoDB'] %}
-                        <div class="stack-preset-item" data-item="{{ item }}" onclick="toggleStackItem(this)">
-                            {{ item }}
-                        </div>
+                        <div class="stack-preset-item" data-item="{{ item }}" onclick="toggleStackItem(this)">{{ item }}</div>
                         {% endfor %}
                     </div>
 
@@ -198,7 +256,6 @@
                     </div>
 
                     <input type="hidden" name="current_stack" id="currentStackInput" value="" />
-
                 </div>
                 <div class="intake-nav" style="margin-top: 2rem;">
                     <a href="/intake/step/1/back" class="intake-btn-back">← Back</a>
@@ -210,7 +267,10 @@
             {% elif step == 3 %}
             <span class="intake-turn-label">// step 03 of 08</span>
             <h2 class="intake-question">What problem are you solving with DGX Cloud?</h2>
-            <p class="intake-hint">Be specific -- this helps Orbit surface the right NIM microservices and integration patterns for your use case.</p>
+            <p class="intake-hint">
+                {% if intake.found_in_registry %}We pre-filled this from your NVIDIA partner profile. Edit as needed.
+                {% else %}Be specific -- this helps Orbit surface the right NIM microservices for your use case.{% endif %}
+            </p>
 
             <form method="POST" action="/intake/step/3">
                 <div class="intake-input-group">
@@ -218,7 +278,7 @@
                         <label class="intake-field-label">Your Core Problem</label>
                         <textarea class="intake-textarea" name="problem_statement"
                             style="min-height: 130px;"
-                            placeholder="e.g. We're processing 10TB of medical imaging data daily and need GPU-accelerated inference at sub-100ms latency..."
+                            placeholder="e.g. We're processing 10TB of medical imaging data daily..."
                             required>{{ intake.problem_statement or '' }}</textarea>
                     </div>
                 </div>
@@ -291,7 +351,6 @@
                     <span class="tool-limit-note" id="toolLimitNote">Select at least 1, at most 2</span>
                     <input type="hidden" name="selected_tools" id="selectedToolsInput" />
                 </div>
-
                 <div class="intake-nav" style="margin-top: 2rem;">
                     <a href="/intake/step/4/back" class="intake-btn-back">← Back</a>
                     <button type="submit" class="intake-btn-next" id="toolNextBtn" disabled
@@ -303,11 +362,10 @@
             {% elif step == 6 %}
             <span class="intake-turn-label">// step 06 of 08</span>
             <h2 class="intake-question">What are your adoption concerns?</h2>
-            <p class="intake-hint">Select any concerns your team has about adopting DGX Cloud. Orbit will address each one directly in your results.</p>
+            <p class="intake-hint">Select any concerns your team has. Orbit will address each one directly in your results.</p>
 
             <form method="POST" action="/intake/step/6">
                 <div class="intake-input-group">
-
                     <div class="concern-options">
                         {% for value, label in [
                             ('team_ml_experience', 'Our team lacks ML engineering experience'),
@@ -322,18 +380,15 @@
                         <div class="concern-option" data-concern="{{ value }}" onclick="toggleConcern(this)">
                             <div class="concern-checkbox"></div>
                             <span class="concern-label">{{ label }}</span>
-                            <input type="checkbox" name="preset_concerns" value="{{ label }}"
-                                id="concern_{{ value }}" style="display:none;" />
+                            <input type="checkbox" name="preset_concerns" value="{{ label }}" style="display:none;" />
                         </div>
                         {% endfor %}
                     </div>
-
                     <div class="intake-field" style="margin-top: 1rem;">
                         <label class="intake-field-label">Any other concerns? (optional)</label>
                         <input class="intake-input" type="text" name="custom_concern"
                             placeholder="e.g. We need SOC 2 compliance support..." />
                     </div>
-
                 </div>
                 <div class="intake-nav" style="margin-top: 2rem;">
                     <a href="/intake/step/5/back" class="intake-btn-back">← Back</a>
@@ -349,7 +404,6 @@
 
             <form method="POST" action="/intake/step/7" id="teamForm">
                 <div class="intake-input-group">
-
                     <div class="team-options">
 
                         <div class="team-option" data-team="solo" onclick="selectTeam(this)">
@@ -384,10 +438,8 @@
                         </div>
 
                     </div>
-
                     <input type="hidden" name="team_context" id="teamContextInput" />
                 </div>
-
                 <div class="intake-nav" style="margin-top: 2rem;">
                     <a href="/intake/step/6/back" class="intake-btn-back">← Back</a>
                     <button type="submit" class="intake-btn-next" id="teamNextBtn" disabled
@@ -403,14 +455,13 @@
 
             <form method="POST" action="/intake/step/8" id="rankForm">
                 <div class="intake-input-group">
-
                     <div class="rank-options" id="rankOptions">
 
                         <div class="rank-item" draggable="true" data-format="workshop">
                             <div class="rank-number">1</div>
                             <div class="rank-info">
                                 <span class="rank-name">Workshop</span>
-                                <span class="rank-desc">Facilitated team session with structured exercises and discussion</span>
+                                <span class="rank-desc">Facilitated team session with structured exercises</span>
                             </div>
                             <span class="drag-handle">⠿</span>
                         </div>
@@ -419,7 +470,7 @@
                             <div class="rank-number">2</div>
                             <div class="rank-info">
                                 <span class="rank-name">Jupyter Notebook</span>
-                                <span class="rank-desc">Step-by-step technical lab you can run and build from independently</span>
+                                <span class="rank-desc">Step-by-step technical lab you can run independently</span>
                             </div>
                             <span class="drag-handle">⠿</span>
                         </div>
@@ -428,16 +479,14 @@
                             <div class="rank-number">3</div>
                             <div class="rank-info">
                                 <span class="rank-name">Internal Hackathon</span>
-                                <span class="rank-desc">Structured problem brief for your team to tackle collaboratively</span>
+                                <span class="rank-desc">Structured problem brief for your team to tackle</span>
                             </div>
                             <span class="drag-handle">⠿</span>
                         </div>
 
                     </div>
-
                     <input type="hidden" name="format_ranking" id="formatRankingInput" value="workshop,notebook,hackathon" />
                 </div>
-
                 <div class="intake-nav" style="margin-top: 2rem;">
                     <a href="/intake/step/7/back" class="intake-btn-back">← Back</a>
                     <button type="submit" class="intake-btn-next">Generate Adoption Strategy →</button>
@@ -453,9 +502,8 @@
 
 {% block extra_js %}
 <script>
-// ── Stack Preset Selection (Step 2) ──
+// Stack Preset Selection
 let selectedStack = [];
-
 function toggleStackItem(el) {
     const item = el.dataset.item;
     if (el.classList.contains('selected')) {
@@ -469,25 +517,20 @@ function toggleStackItem(el) {
     if (input) input.value = selectedStack.join(',');
 }
 
-// ── Concern Selection (Step 6) ──
+// Concern Selection
 function toggleConcern(el) {
     el.classList.toggle('selected');
     const checkbox = el.querySelector('input[type="checkbox"]');
     if (checkbox) checkbox.checked = el.classList.contains('selected');
     const checkboxDiv = el.querySelector('.concern-checkbox');
-    if (checkboxDiv) {
-        checkboxDiv.textContent = el.classList.contains('selected') ? '✓' : '';
-    }
+    if (checkboxDiv) checkboxDiv.textContent = el.classList.contains('selected') ? '✓' : '';
 }
 
-// ── Tool Selection (Step 5) ──
+// Tool Selection
 let selectedTools = [];
-
 function toggleTool(el) {
     const tool = el.dataset.tool;
     const isSelected = el.classList.contains('selected');
-    const allOptions = document.querySelectorAll('.tool-option');
-
     if (isSelected) {
         el.classList.remove('selected');
         el.querySelector('.tool-checkbox').textContent = '';
@@ -498,72 +541,42 @@ function toggleTool(el) {
         el.querySelector('.tool-checkbox').textContent = '✓';
         selectedTools.push(tool);
     }
-
-    allOptions.forEach(opt => {
-        if (!opt.classList.contains('selected') && selectedTools.length >= 2) {
-            opt.classList.add('disabled');
-        } else {
-            opt.classList.remove('disabled');
-        }
+    document.querySelectorAll('.tool-option').forEach(opt => {
+        opt.classList.toggle('disabled', !opt.classList.contains('selected') && selectedTools.length >= 2);
     });
-
     const input = document.getElementById('selectedToolsInput');
     const btn = document.getElementById('toolNextBtn');
     if (input) input.value = selectedTools.join(',');
-
     if (btn) {
-        if (selectedTools.length >= 1) {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-        } else {
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-        }
+        btn.disabled = selectedTools.length < 1;
+        btn.style.opacity = selectedTools.length >= 1 ? '1' : '0.5';
+        btn.style.cursor = selectedTools.length >= 1 ? 'pointer' : 'not-allowed';
     }
-
     const note = document.getElementById('toolLimitNote');
-    if (note) {
-        note.textContent = selectedTools.length === 2
-            ? 'Maximum 2 tools selected'
-            : `${selectedTools.length} selected — select at least 1, at most 2`;
-    }
+    if (note) note.textContent = selectedTools.length === 2 ? 'Maximum 2 tools selected' : `${selectedTools.length} selected — select at least 1, at most 2`;
 }
 
-// ── Team Selection (Step 7) ──
+// Team Selection
 function selectTeam(el) {
     document.querySelectorAll('.team-option').forEach(opt => opt.classList.remove('selected'));
     el.classList.add('selected');
-
     const team = el.dataset.team;
     const input = document.getElementById('teamContextInput');
     const btn = document.getElementById('teamNextBtn');
     const sizeRow = document.getElementById('teamSizeRow');
-
     if (input) input.value = team;
     if (sizeRow) sizeRow.classList.toggle('visible', team === 'engineering_team');
-
-    if (btn) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-    }
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
 }
 
-// ── Drag-to-rank (Step 8) ──
+// Drag-to-rank
 let dragSrc = null;
-
 document.querySelectorAll('.rank-item').forEach(item => {
-    item.addEventListener('dragstart', function() {
-        dragSrc = this;
-        this.classList.add('dragging');
-    });
+    item.addEventListener('dragstart', function() { dragSrc = this; this.classList.add('dragging'); });
     item.addEventListener('dragend', function() {
         this.classList.remove('dragging');
         document.querySelectorAll('.rank-item').forEach(i => i.classList.remove('drag-over'));
-        updateRankNumbers();
-        updateRankInput();
+        updateRankNumbers(); updateRankInput();
     });
     item.addEventListener('dragover', function(e) {
         e.preventDefault();
@@ -579,21 +592,13 @@ document.querySelectorAll('.rank-item').forEach(item => {
             const items = [...container.querySelectorAll('.rank-item')];
             const srcIdx = items.indexOf(dragSrc);
             const tgtIdx = items.indexOf(this);
-            if (srcIdx < tgtIdx) {
-                container.insertBefore(dragSrc, this.nextSibling);
-            } else {
-                container.insertBefore(dragSrc, this);
-            }
+            container.insertBefore(dragSrc, srcIdx < tgtIdx ? this.nextSibling : this);
         }
     });
 });
-
 function updateRankNumbers() {
-    document.querySelectorAll('.rank-item').forEach((item, i) => {
-        item.querySelector('.rank-number').textContent = i + 1;
-    });
+    document.querySelectorAll('.rank-item').forEach((item, i) => { item.querySelector('.rank-number').textContent = i + 1; });
 }
-
 function updateRankInput() {
     const order = [...document.querySelectorAll('.rank-item')].map(i => i.dataset.format);
     const input = document.getElementById('formatRankingInput');

@@ -16,11 +16,9 @@ def save_intake(data):
 
 
 def extract_domain(value):
-    """Extract bare domain from email or URL."""
     value = value.strip().lower()
     if '@' in value:
         return value.split('@')[-1]
-    # Handle URL
     if not value.startswith('http'):
         value = 'https://' + value
     parsed = urlparse(value)
@@ -29,13 +27,10 @@ def extract_domain(value):
 
 
 def domains_match(email, website):
-    """Strict domain match between email and website."""
-    email_domain = extract_domain(email)
-    website_domain = extract_domain(website)
-    return email_domain == website_domain
+    return extract_domain(email) == extract_domain(website)
 
 
-# ── Step 0a: Identity ──
+# ── Step 0: Identity ──
 @intake_bp.route('/intake')
 @login_required
 def index():
@@ -46,8 +41,7 @@ def index():
 @intake_bp.route('/intake/step/0')
 @login_required
 def step0():
-    intake = get_intake()
-    return render_template('intake.html', step=0, intake=intake, error=None)
+    return render_template('intake.html', step=0, intake=get_intake(), error=None)
 
 
 @intake_bp.route('/intake/step/0', methods=['POST'])
@@ -69,15 +63,66 @@ def step0_post():
             intake={'contact_name': name, 'contact_email': email, 'company_website': website},
             error=f'Your email domain (@{email_domain}) must match your company website ({website_domain}). Please use your work email.')
 
+    # Generate OTP
+    from services.registry_service import generate_otp
+    otp = generate_otp()
+    session['otp'] = otp
+
+    # Registry lookup + Nemotron pre-fill
+    domain = extract_domain(email)
+    try:
+        from services.registry_service import prefill_from_registry
+        prefill = prefill_from_registry(domain, name)
+    except Exception:
+        prefill = None
+
     save_intake({
         'contact_name': name,
         'contact_email': email,
         'company_website': website,
+        'prefill': prefill,
+        # Pre-populate from registry if found
+        'company_name': prefill.get('company_name', '') if prefill else '',
+        'company_description': prefill.get('description', '') if prefill else '',
+        'tagline': prefill.get('tagline', '') if prefill else '',
+        'problem_statement': prefill.get('problem_statement', '') if prefill else '',
+        'contact_role': prefill.get('contact_role', '') if prefill else '',
+        'nvidia_products': prefill.get('nvidia_products', []) if prefill else [],
+        'welcome_message': prefill.get('welcome_message', '') if prefill else '',
+        'tier': prefill.get('tier', '') if prefill else '',
+        'found_in_registry': bool(prefill),
     })
+
+    return redirect(url_for('intake.step0c'))
+
+
+# ── Step 0c: OTP Verification ──
+@intake_bp.route('/intake/step/0c')
+@login_required
+def step0c():
+    intake = get_intake()
+    if not intake.get('contact_email'):
+        return redirect(url_for('intake.step0'))
+    otp = session.get('otp', '000000')
+    return render_template('intake.html', step='0c', intake=intake, otp=otp, error=None)
+
+
+@intake_bp.route('/intake/step/0c', methods=['POST'])
+@login_required
+def step0c_post():
+    entered = request.form.get('otp_code', '').strip()
+    real_otp = session.get('otp', '')
+
+    if entered != real_otp:
+        intake = get_intake()
+        otp = session.get('otp', '000000')
+        return render_template('intake.html', step='0c', intake=intake, otp=otp,
+            error='Incorrect verification code. Please try again.')
+
     return redirect(url_for('intake.step0b'))
 
 
-# ── Step 0b: Confirm company ──
+# ── Step 0b: Confirm company + role ──
 @intake_bp.route('/intake/step/0b')
 @login_required
 def step0b():
@@ -125,7 +170,6 @@ def step1_post():
 @intake_bp.route('/intake/step/2', methods=['POST'])
 @login_required
 def step2_post():
-    # Current tech stack
     stack_raw = request.form.get('current_stack', '')
     stack_items = [s.strip() for s in stack_raw.split(',') if s.strip()]
     additional = request.form.get('additional_stack', '').strip()
@@ -135,7 +179,6 @@ def step2_post():
             if item and item not in stack_items:
                 stack_items.append(item)
 
-    # Auto-populate sidebar
     current = session.get('tech_stack', [])
     for item in stack_items:
         if item not in current:
@@ -178,7 +221,6 @@ def step5_post():
 @intake_bp.route('/intake/step/6', methods=['POST'])
 @login_required
 def step6_post():
-    # Adoption concerns
     preset_concerns = request.form.getlist('preset_concerns')
     custom_concern = request.form.get('custom_concern', '').strip()
     all_concerns = preset_concerns.copy()
@@ -223,4 +265,10 @@ def step_back(step):
 @intake_bp.route('/intake/step/0b/back')
 @login_required
 def step0b_back():
+    return redirect(url_for('intake.step0c'))
+
+
+@intake_bp.route('/intake/step/0c/back')
+@login_required
+def step0c_back():
     return redirect(url_for('intake.step0'))
