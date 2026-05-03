@@ -60,6 +60,19 @@ def run():
         session['primary_format'] = primary_format
         session['output_ready'] = True
 
+        # Auto-add selected tools to tech stack
+
+        try:
+            selected_tools = intake.get('selected_tools', [])
+            current_stack = session.get('tech_stack', [])
+            for tool in selected_tools:
+                tool_name = tool.title()
+                if tool_name not in current_stack:
+                    current_stack.append(tool_name)
+            session['tech_stack'] = current_stack
+        except Exception:
+            pass
+        
         # Log completed output
         try:
             from services.analytics_service import log_output_generated
