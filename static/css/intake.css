@@ -578,3 +578,143 @@
     color: var(--text-primary);
     border-color: var(--border-accent);
 }
+
+/* ── Step 0 / Error / Confirm ── */
+.intake-error {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    background: rgba(255, 60, 60, 0.08);
+    border: 1px solid rgba(255, 60, 60, 0.25);
+    border-radius: var(--radius-sm);
+    color: #ff6b6b;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.intake-confirm-card {
+    background: rgba(118, 185, 0, 0.05);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.confirm-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.confirm-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    width: 60px;
+    flex-shrink: 0;
+}
+
+.confirm-value {
+    font-size: 0.88rem;
+    color: var(--nvidia-green);
+    font-weight: 500;
+}
+
+/* ── Stack Preset Options (Step 2) ── */
+.stack-preset-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.stack-preset-item {
+    padding: 0.45rem 0.9rem;
+    border-radius: 100px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    letter-spacing: 0.03em;
+}
+
+.stack-preset-item:hover {
+    border-color: var(--border-accent);
+    color: var(--text-primary);
+}
+
+.stack-preset-item.selected {
+    background: rgba(118, 185, 0, 0.1);
+    border-color: var(--nvidia-green);
+    color: var(--nvidia-green);
+}
+
+/* ── Concern Options (Step 6) ── */
+.concern-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.concern-option {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.concern-option:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+}
+
+.concern-option.selected {
+    border-color: var(--nvidia-green);
+    background: rgba(118, 185, 0, 0.06);
+}
+
+.concern-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    transition: all 0.15s ease;
+    color: #000;
+}
+
+.concern-option.selected .concern-checkbox {
+    background: var(--nvidia-green);
+    border-color: var(--nvidia-green);
+    color: #000;
+}
+
+.concern-label {
+    font-size: 0.86rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.concern-option.selected .concern-label {
+    color: var(--text-primary);
+}

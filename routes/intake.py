@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request
+from urllib.parse import urlparse
 from routes.auth import login_required
 
 intake_bp = Blueprint('intake', __name__)
@@ -14,20 +15,100 @@ def save_intake(data):
     session['intake'] = intake
 
 
+def extract_domain(value):
+    """Extract bare domain from email or URL."""
+    value = value.strip().lower()
+    if '@' in value:
+        return value.split('@')[-1]
+    # Handle URL
+    if not value.startswith('http'):
+        value = 'https://' + value
+    parsed = urlparse(value)
+    domain = parsed.netloc.replace('www.', '')
+    return domain
+
+
+def domains_match(email, website):
+    """Strict domain match between email and website."""
+    email_domain = extract_domain(email)
+    website_domain = extract_domain(website)
+    return email_domain == website_domain
+
+
+# ── Step 0a: Identity ──
 @intake_bp.route('/intake')
 @login_required
 def index():
-    session['intake_step'] = 1
+    session['intake'] = {}
+    return redirect(url_for('intake.step0'))
+
+
+@intake_bp.route('/intake/step/0')
+@login_required
+def step0():
+    intake = get_intake()
+    return render_template('intake.html', step=0, intake=intake, error=None)
+
+
+@intake_bp.route('/intake/step/0', methods=['POST'])
+@login_required
+def step0_post():
+    name = request.form.get('contact_name', '').strip()
+    email = request.form.get('contact_email', '').strip()
+    website = request.form.get('company_website', '').strip()
+
+    if not name or not email or not website:
+        return render_template('intake.html', step=0,
+            intake={'contact_name': name, 'contact_email': email, 'company_website': website},
+            error='Please fill in all fields.')
+
+    if not domains_match(email, website):
+        email_domain = extract_domain(email)
+        website_domain = extract_domain(website)
+        return render_template('intake.html', step=0,
+            intake={'contact_name': name, 'contact_email': email, 'company_website': website},
+            error=f'Your email domain (@{email_domain}) must match your company website ({website_domain}). Please use your work email.')
+
+    save_intake({
+        'contact_name': name,
+        'contact_email': email,
+        'company_website': website,
+    })
+    return redirect(url_for('intake.step0b'))
+
+
+# ── Step 0b: Confirm company ──
+@intake_bp.route('/intake/step/0b')
+@login_required
+def step0b():
+    intake = get_intake()
+    if not intake.get('contact_email'):
+        return redirect(url_for('intake.step0'))
+    return render_template('intake.html', step='0b', intake=intake)
+
+
+@intake_bp.route('/intake/step/0b', methods=['POST'])
+@login_required
+def step0b_post():
+    role = request.form.get('contact_role', '').strip()
+    company_name = request.form.get('company_name', '').strip()
+    save_intake({
+        'contact_role': role,
+        'company_name': company_name,
+    })
     return redirect(url_for('intake.step', step=1))
 
 
+# ── Steps 1-8 ──
 @intake_bp.route('/intake/step/<int:step>')
 @login_required
 def step(step):
-    if step < 1 or step > 6:
+    if step < 1 or step > 8:
         return redirect(url_for('intake.index'))
     intake = get_intake()
-    return render_template('intake.html', step=step, intake=intake)
+    if not intake.get('contact_email'):
+        return redirect(url_for('intake.step0'))
+    return render_template('intake.html', step=step, intake=intake, error=None)
 
 
 @intake_bp.route('/intake/step/1', methods=['POST'])
@@ -44,9 +125,24 @@ def step1_post():
 @intake_bp.route('/intake/step/2', methods=['POST'])
 @login_required
 def step2_post():
-    save_intake({
-        'problem_statement': request.form.get('problem_statement', '').strip(),
-    })
+    # Current tech stack
+    stack_raw = request.form.get('current_stack', '')
+    stack_items = [s.strip() for s in stack_raw.split(',') if s.strip()]
+    additional = request.form.get('additional_stack', '').strip()
+    if additional:
+        for item in additional.split(','):
+            item = item.strip()
+            if item and item not in stack_items:
+                stack_items.append(item)
+
+    # Auto-populate sidebar
+    current = session.get('tech_stack', [])
+    for item in stack_items:
+        if item not in current:
+            current.append(item)
+    session['tech_stack'] = current
+
+    save_intake({'current_stack': stack_items})
     return redirect(url_for('intake.step', step=3))
 
 
@@ -54,7 +150,7 @@ def step2_post():
 @login_required
 def step3_post():
     save_intake({
-        'why_nvidia': request.form.get('why_nvidia', '').strip(),
+        'problem_statement': request.form.get('problem_statement', '').strip(),
     })
     return redirect(url_for('intake.step', step=4))
 
@@ -62,35 +158,56 @@ def step3_post():
 @intake_bp.route('/intake/step/4', methods=['POST'])
 @login_required
 def step4_post():
-    tools_raw = request.form.get('selected_tools', '')
-    tools = [t.strip() for t in tools_raw.split(',') if t.strip()]
-    if not tools or len(tools) > 2:
-        return redirect(url_for('intake.step', step=4))
-    save_intake({'selected_tools': tools})
+    save_intake({
+        'why_nvidia': request.form.get('why_nvidia', '').strip(),
+    })
     return redirect(url_for('intake.step', step=5))
 
 
 @intake_bp.route('/intake/step/5', methods=['POST'])
 @login_required
 def step5_post():
-    team_context = request.form.get('team_context', '').strip()
-    team_size = request.form.get('team_size', '').strip()
-    if not team_context:
+    tools_raw = request.form.get('selected_tools', '')
+    tools = [t.strip() for t in tools_raw.split(',') if t.strip()]
+    if not tools or len(tools) > 2:
         return redirect(url_for('intake.step', step=5))
-    save_intake({
-        'team_context': team_context,
-        'team_size': team_size if team_size else None,
-    })
+    save_intake({'selected_tools': tools})
     return redirect(url_for('intake.step', step=6))
 
 
 @intake_bp.route('/intake/step/6', methods=['POST'])
 @login_required
 def step6_post():
+    # Adoption concerns
+    preset_concerns = request.form.getlist('preset_concerns')
+    custom_concern = request.form.get('custom_concern', '').strip()
+    all_concerns = preset_concerns.copy()
+    if custom_concern:
+        all_concerns.append(custom_concern)
+    save_intake({'adoption_concerns': all_concerns})
+    return redirect(url_for('intake.step', step=7))
+
+
+@intake_bp.route('/intake/step/7', methods=['POST'])
+@login_required
+def step7_post():
+    team_context = request.form.get('team_context', '').strip()
+    team_size = request.form.get('team_size', '').strip()
+    if not team_context:
+        return redirect(url_for('intake.step', step=7))
+    save_intake({
+        'team_context': team_context,
+        'team_size': team_size if team_size else None,
+    })
+    return redirect(url_for('intake.step', step=8))
+
+
+@intake_bp.route('/intake/step/8', methods=['POST'])
+@login_required
+def step8_post():
     ranking_raw = request.form.get('format_ranking', 'workshop,notebook,hackathon')
     ranking = [r.strip() for r in ranking_raw.split(',') if r.strip()]
     save_intake({'format_ranking': ranking})
-    # All intake complete - go to output generation
     return redirect(url_for('output.generate'))
 
 
@@ -98,5 +215,12 @@ def step6_post():
 @intake_bp.route('/intake/step/<int:step>/back')
 @login_required
 def step_back(step):
-    target = max(1, step - 1)
-    return redirect(url_for('intake.step', step=target))
+    if step <= 1:
+        return redirect(url_for('intake.step0b'))
+    return redirect(url_for('intake.step', step=step - 1))
+
+
+@intake_bp.route('/intake/step/0b/back')
+@login_required
+def step0b_back():
+    return redirect(url_for('intake.step0'))
