@@ -1,0 +1,40 @@
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+env/
+
+# GCP credentials
+*.json
+service-account*.json
+
+# Data files
+data/analytics.json
+data/gcp_state.json
+data/email_state.json
+data/deliverable_*.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints/
