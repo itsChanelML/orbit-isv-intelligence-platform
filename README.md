@@ -28,7 +28,7 @@
 
 ---
 
-> Built as a portfolio project for the **Senior Developer Relations Manager (DGX Cloud)** role at NVIDIA — JR2008417
+> Built as a portfolio project for the **Senior Developer Relations Manager**
 
 Orbit is an agentic ISV onboarding and adoption intelligence platform built on NVIDIA NIM and DGX Cloud. It automates the pre-work of ISV developer relations — learning who a software vendor is, what they build, and what they need — then uses multi-model NIM inference to generate a personalized DGX Cloud adoption strategy, deliverable, and concern responses in a single flow.
 
