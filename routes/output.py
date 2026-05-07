@@ -1,5 +1,4 @@
 import json
-import os
 import markdown as md
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, Response
 from routes.auth import login_required
@@ -49,23 +48,42 @@ def run():
         # Step 3: Generate primary deliverable based on top format
         primary_format = ranking[0] if ranking else 'workshop'
         deliverable_content = ''
+        team_context = intake.get('team_context', '')
 
-        if primary_format == 'workshop':
+        # Check if exec-facing output was selected
+        if team_context == 'exec_facing':
+            from services.exec_brief_service import generate_exec_brief, brief_to_markdown
+            exec_brief = generate_exec_brief(intake, recommendations)
+            deliverable_content = brief_to_markdown(exec_brief)
+            primary_format = 'exec_brief'
+            session['exec_brief'] = exec_brief
+        elif primary_format == 'workshop':
             deliverable_content = generate_workshop(intake, recommendations)
         elif primary_format == 'hackathon':
             deliverable_content = generate_hackathon_brief(intake, recommendations)
         elif primary_format == 'notebook':
             deliverable_content = generate_notebook(intake, recommendations)
 
-        # Write deliverable to file instead of session
-        import os
-        deliverable_path = os.path.join('data', f"deliverable_{session.get('session_id', 'tmp')}.txt")
-        with open(deliverable_path, 'w') as f:
-            f.write(deliverable_content)
-        session['deliverable_path'] = deliverable_path
-        session['deliverable_content'] = ''  # Don't store in cookie
+        session['deliverable_content'] = deliverable_content
         session['primary_format'] = primary_format
         session['output_ready'] = True
+
+        # Save to document store
+        try:
+            from services.document_store import save_document
+            session_id = session.get('session_id', 'default')
+            company = intake.get('company_name', 'ISV')
+            strategies = session.get('adoption_strategies', [])
+            strategy_id = len(strategies) + 1
+            save_document(
+                session_id=session_id,
+                doc_type=primary_format,
+                content=deliverable_content,
+                company_name=company,
+                strategy_id=strategy_id
+            )
+        except Exception:
+            pass
 
         # Auto-add selected tools to tech stack
         try:
@@ -92,12 +110,23 @@ def run():
         try:
             from datetime import datetime, timezone
             strategies = session.get('adoption_strategies', [])
+            # Generate short title from problem statement
+            problem = intake.get('problem_statement', '')
+            tools = intake.get('selected_tools', [])
+            fmt = primary_format.title()
+            tool_str = tools[0].title() if tools else 'DGX'
+            # Take first 4-5 words of problem
+            words = problem.split()[:4]
+            short_title = ' '.join(words) + f' {fmt}' if words else f'{tool_str} {fmt}'
+            short_title = short_title[:35]  # Cap at 35 chars
+
             strategies.append({
                 'id': len(strategies) + 1,
                 'company': intake.get('company_name', 'Unknown'),
                 'date': datetime.now(timezone.utc).strftime('%m.%d.%y'),
                 'primary_format': primary_format,
                 'tools': intake.get('selected_tools', []),
+                'short_title': short_title,
             })
             session['adoption_strategies'] = strategies
         except Exception:
@@ -131,11 +160,7 @@ def results():
     recommendations = session.get('recommendations', [])
     learning_style = session.get('learning_style', {})
     primary_format = session.get('primary_format', 'workshop')
-    deliverable_path = session.get('deliverable_path', '')
-    deliverable_content = ''
-    if deliverable_path and os.path.exists(deliverable_path):
-        with open(deliverable_path, 'r') as f:
-            deliverable_content = f.read()
+    deliverable_content = session.get('deliverable_content', '')
 
     # Convert markdown to HTML for preview
     deliverable_html = ''
@@ -164,6 +189,8 @@ def results():
         deliverable_html=deliverable_html,
         notebook_cells=notebook_cells,
         concern_responses=session.get('concern_responses', []),
+        adoption_strategies=session.get('adoption_strategies', []),
+        stack_items=session.get('tech_stack', []),
         role=session.get('role', 'isv')
     )
 
@@ -173,11 +200,7 @@ def results():
 def download(format_type):
     intake = session.get('intake', {})
     company = intake.get('company_name', 'ISV').replace(' ', '-').lower()
-    deliverable_path = session.get('deliverable_path', '')
-    content = ''
-    if deliverable_path and os.path.exists(deliverable_path):
-        with open(deliverable_path, 'r') as f:
-            content = f.read()
+    content = session.get('deliverable_content', '')
 
     if format_type == 'md':
         return Response(
@@ -206,7 +229,6 @@ def download(format_type):
 @login_required
 def reset():
     for key in ['intake', 'recommendations', 'learning_style',
-                'deliverable_path', 'deliverable_content', 'primary_format',
-                'output_ready', 'concern_responses', 'tech_stack']:
+                'deliverable_content', 'primary_format', 'output_ready']:
         session.pop(key, None)
     return redirect(url_for('intake.index'))

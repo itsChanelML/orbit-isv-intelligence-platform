@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ doc.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/documents.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="docs-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="/portal" style="text-decoration:none;">
+                <div class="sidebar-wordmark">Orbit<span>.</span></div>
+            </a>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Platform</span>
+            <a href="/portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+                Home
+            </a>
+            <a href="/intake" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+                </svg>
+                Adoption Strategy
+            </a>
+            <a href="/portal/tools" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 3h12M2 8h8M2 13h5"/>
+                </svg>
+                Tools Library
+            </a>
+            <a href="/portal/documents" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/><path d="M6 8h5M6 11h3"/>
+                </svg>
+                My Documents
+            </a>
+            <span class="nav-section-label" style="margin-top: 0.5rem;">Settings</span>
+            <a href="/portal/profile" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="5" r="3"/>
+                    <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                </svg>
+                Profile
+            </a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="docs-main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/portal/documents" style="color:var(--text-muted);text-decoration:none;font-size:0.82rem;">← Documents</a>
+            </div>
+            <div class="topbar-right">
+                <a href="/portal/documents/{{ doc.id }}/download" class="restart-btn">↓ Download {{ doc.extension }}</a>
+            </div>
+        </header>
+
+        <div class="doc-preview-body" data-animate>
+
+            <!-- Header -->
+            <div class="doc-preview-header">
+                <div class="doc-preview-icon">{{ doc.icon }}</div>
+                <div>
+                    <div class="doc-preview-title">{{ doc.title }}</div>
+                    <div class="doc-meta" style="margin-top:0.3rem;">
+                        <span class="doc-type-tag">{{ doc.label }}</span>
+                        <span class="doc-date" style="margin-left:0.5rem;">{{ doc.date }}</span>
+                        <span class="doc-size" style="margin-left:0.5rem;">{{ doc.size_formatted }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Preview -->
+            {% if doc.type in ['workshop', 'hackathon', 'exec_brief'] and preview_html %}
+            <div class="doc-preview-content">
+                {{ preview_html | safe }}
+            </div>
+
+            {% elif doc.type == 'notebook' and notebook_cells %}
+            <div class="doc-preview-content">
+                <p style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.75rem;margin-bottom:1rem;">// JUPYTER NOTEBOOK PREVIEW — FIRST 5 CELLS</p>
+                {% for cell in notebook_cells %}
+                <div style="margin-bottom:1rem;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border-subtle);">
+                    <div style="background:rgba(255,255,255,0.03);padding:0.35rem 0.75rem;font-family:var(--font-mono);font-size:0.62rem;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;border-bottom:1px solid var(--border-subtle);">
+                        {{ cell.type }}
+                    </div>
+                    <pre style="margin:0;padding:1rem;font-size:0.8rem;color:var(--text-secondary);overflow-x:auto;background:transparent;border:none;">{{ cell.source }}</pre>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="doc-preview-content">
+                <pre style="white-space:pre-wrap;">{{ content }}</pre>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

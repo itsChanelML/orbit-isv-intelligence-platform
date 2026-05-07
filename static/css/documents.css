@@ -1,0 +1,278 @@
+/* ============================================
+   ORBIT — Documents Library
+   ============================================ */
+
+.docs-shell { display: flex; min-height: 100vh; }
+.docs-main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+.docs-body { padding: 2rem 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Stats */
+.docs-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.docs-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 120px;
+}
+
+.docs-stat-value {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--nvidia-green);
+    line-height: 1;
+}
+
+.docs-stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* Document List */
+.docs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.doc-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    transition: all 0.15s ease;
+}
+
+.doc-row:hover {
+    border-color: var(--border-accent);
+    background: var(--bg-card-hover);
+}
+
+.doc-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 40px;
+    text-align: center;
+}
+
+.doc-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.doc-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.doc-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.doc-type-tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+    background: rgba(118, 185, 0, 0.08);
+    border: 1px solid var(--border-accent);
+    color: var(--nvidia-green);
+    letter-spacing: 0.06em;
+}
+
+.doc-date, .doc-size {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+
+/* Actions */
+.doc-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.doc-btn {
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.doc-btn.preview {
+    background: var(--bg-card-hover);
+    color: var(--text-secondary);
+}
+
+.doc-btn.preview:hover {
+    border-color: var(--border-accent);
+    color: var(--text-primary);
+}
+
+.doc-btn.download {
+    background: rgba(118, 185, 0, 0.08);
+    border-color: var(--border-accent);
+    color: var(--nvidia-green);
+}
+
+.doc-btn.download:hover {
+    background: var(--nvidia-green);
+    color: #000;
+}
+
+.doc-btn.delete {
+    background: none;
+    color: var(--text-muted);
+    padding: 0.4rem 0.6rem;
+}
+
+.doc-btn.delete:hover {
+    background: rgba(255, 60, 60, 0.08);
+    border-color: rgba(255, 60, 60, 0.3);
+    color: #ff6b6b;
+}
+
+/* Empty State */
+.docs-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 2rem;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.docs-empty-icon { font-size: 3rem; opacity: 0.3; }
+.docs-empty-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+.docs-empty-text { font-size: 0.85rem; color: var(--text-muted); max-width: 380px; line-height: 1.6; }
+
+/* ── Document View ── */
+.doc-preview-body {
+    padding: 2rem 2.5rem;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.doc-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+}
+
+.doc-preview-icon { font-size: 2rem; }
+
+.doc-preview-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.doc-preview-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.doc-preview-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.8;
+}
+
+.doc-preview-content h1, .doc-preview-content h2, .doc-preview-content h3 {
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    margin: 1.5rem 0 0.5rem;
+}
+
+.doc-preview-content h1 { font-size: 1.4rem; }
+.doc-preview-content h2 { font-size: 1.1rem; color: var(--nvidia-green); }
+.doc-preview-content h3 { font-size: 0.95rem; }
+
+.doc-preview-content code {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    background: rgba(255,255,255,0.04);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    color: var(--teal);
+}
+
+.doc-preview-content pre {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.doc-preview-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+}
+
+.doc-preview-content th {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+}
+
+.doc-preview-content td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--text-secondary);
+}
+
+.doc-preview-content strong { color: var(--text-primary); }
+.doc-preview-content hr { border-color: var(--border-subtle); margin: 1.5rem 0; }

@@ -5,6 +5,7 @@ from routes.intake import intake_bp
 from routes.output import output_bp
 from routes.portal import portal_bp
 from routes.admin import admin_bp
+from routes.documents import documents_bp
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +17,7 @@ def create_app():
     app.register_blueprint(output_bp)
     app.register_blueprint(portal_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(documents_bp)
 
     return app
 

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}My Documents{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/documents.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="docs-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="/portal" style="text-decoration:none;">
+                <div class="sidebar-wordmark">Orbit<span>.</span></div>
+            </a>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Platform</span>
+            <a href="/portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+                Home
+            </a>
+            <a href="/intake" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+                </svg>
+                Adoption Strategy
+            </a>
+            {% if adoption_strategies %}
+            <div style="padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                {% for strategy in adoption_strategies | reverse %}
+                <a href="/output/results" class="nav-item" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; color: var(--text-muted);">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;">
+                        <path d="M4 1h6l4 4v10H4V1z"/>
+                    </svg>
+                    {{ strategy.short_title or strategy.date }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <a href="/portal/tools" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 3h12M2 8h8M2 13h5"/>
+                </svg>
+                Tools Library
+            </a>
+            <a href="/portal/documents" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/><path d="M6 8h5M6 11h3"/>
+                </svg>
+                My Documents
+            </a>
+            <span class="nav-section-label" style="margin-top: 0.5rem;">Settings</span>
+            <a href="/portal/profile" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="5" r="3"/>
+                    <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                </svg>
+                Profile
+            </a>
+        </nav>
+        <div class="sidebar-stack">
+            <div class="stack-header">
+                <span class="stack-label">Tech Stack</span>
+            </div>
+            {% if stack_items %}
+                {% for item in stack_items %}
+                <div class="stack-item">
+                    <div class="stack-item-dot"></div>
+                    <span class="stack-item-name">{{ item }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <span class="stack-empty">No stack connected yet</span>
+            {% endif %}
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-chip">
+                <div class="user-avatar">{{ role[0].upper() if role else 'I' }}</div>
+                <div class="user-info"><span class="user-role">{{ role }}</span></div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="docs-main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-title">My Documents</span>
+            </div>
+            <div class="topbar-right">
+                <a href="/intake" class="restart-btn">+ New Strategy</a>
+            </div>
+        </header>
+
+        <div class="docs-body" data-animate>
+
+            <!-- Stats Row -->
+            <div class="docs-stats">
+                <div class="docs-stat">
+                    <span class="docs-stat-value">{{ stats.total }}</span>
+                    <span class="docs-stat-label">Total Documents</span>
+                </div>
+                {% for type_key, count in stats.by_type.items() %}
+                <div class="docs-stat">
+                    <span class="docs-stat-value">{{ count }}</span>
+                    <span class="docs-stat-label">{{ doc_types[type_key].label if type_key in doc_types else type_key }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Document List -->
+            {% if docs %}
+            <div class="docs-list">
+                {% for doc in docs %}
+                <div class="doc-row">
+                    <div class="doc-icon">{{ doc.icon }}</div>
+                    <div class="doc-info">
+                        <span class="doc-title">{{ doc.title }}</span>
+                        <div class="doc-meta">
+                            <span class="doc-type-tag">{{ doc.label }}</span>
+                            <span class="doc-date">{{ doc.date }}</span>
+                            <span class="doc-size">{{ doc.size_formatted }}</span>
+                        </div>
+                    </div>
+                    <div class="doc-actions">
+                        <a href="/portal/documents/{{ doc.id }}" class="doc-btn preview">Preview</a>
+                        <a href="/portal/documents/{{ doc.id }}/download" class="doc-btn download">↓ Download</a>
+                        <button onclick="deleteDoc('{{ doc.id }}')" class="doc-btn delete">✕</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Empty State -->
+            <div class="docs-empty">
+                <div class="docs-empty-icon">📄</div>
+                <h3 class="docs-empty-title">No documents yet</h3>
+                <p class="docs-empty-text">Complete an adoption strategy to generate your first workshop, notebook, or executive brief.</p>
+                <a href="/intake" class="intake-btn-next" style="display:inline-block; margin-top: 1rem;">Start Adoption Strategy →</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function deleteDoc(docId) {
+    if (!confirm('Delete this document?')) return;
+    const res = await fetch(`/portal/documents/${docId}/delete`, { method: 'POST' });
+    if (res.ok) location.reload();
+}
+</script>
+{% endblock %}
