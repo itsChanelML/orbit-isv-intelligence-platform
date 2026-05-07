@@ -118,6 +118,24 @@ def gcp_sync():
         stack_items=get_stack()
     )
 
+@portal_bp.route('/portal/tools')
+@login_required
+def tools():
+    from services.tools_service import get_full_tools_catalog
+    intake = session.get('intake', {})
+    company_name = intake.get('company_name', '')
+    stack_items = get_stack()
+    catalog = get_full_tools_catalog(
+        company_name=company_name,
+        isv_stack=stack_items
+    )
+    return render_template('tools.html',
+        role=session.get('role', 'isv'),
+        stack_items=stack_items,
+        adoption_strategies=session.get('adoption_strategies', []),
+        catalog=catalog
+    )
+
 @portal_bp.route('/portal/profile')
 @login_required
 def profile():
@@ -134,6 +152,15 @@ def profile():
 @portal_bp.route('/portal/stack')
 @login_required
 def stack():
+    return render_template('portal.html',
+        role=session.get('role', 'isv'),
+        stack_items=get_stack(),
+        adoption_strategies=session.get('adoption_strategies', [])
+    )
+
+@portal_bp.route('/portal/documents')
+@login_required
+def documents():
     return render_template('portal.html',
         role=session.get('role', 'isv'),
         stack_items=get_stack(),

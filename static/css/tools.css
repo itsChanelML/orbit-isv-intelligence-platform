@@ -1,0 +1,400 @@
+/* ============================================
+   ORBIT — Developer Tools Library
+   ============================================ */
+
+.tools-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.tools-main {
+    margin-left: 240px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.tools-body {
+    padding: 2rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ── Tab Navigation ── */
+.tools-tabs {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 0.35rem;
+    width: fit-content;
+}
+
+.tools-tab {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: var(--text-secondary);
+    background: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tools-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-card-hover);
+}
+
+.tools-tab.active {
+    background: var(--nvidia-green);
+    color: #000;
+    font-weight: 600;
+}
+
+.tools-tab-count {
+    background: rgba(0,0,0,0.15);
+    border-radius: 100px;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.65rem;
+}
+
+.tools-tab.active .tools-tab-count {
+    background: rgba(0,0,0,0.2);
+}
+
+/* ── Search + Filter Bar ── */
+.tools-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.tools-search {
+    flex: 1;
+    min-width: 240px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 1rem;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+    -webkit-appearance: none;
+}
+
+.tools-search:focus {
+    border-color: var(--nvidia-green);
+}
+
+.tools-search::placeholder {
+    color: var(--text-muted);
+}
+
+.tools-filter {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 1rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    letter-spacing: 0.04em;
+}
+
+.tools-filter:focus {
+    border-color: var(--nvidia-green);
+    color: var(--text-primary);
+}
+
+/* ── Tools Grid ── */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+/* ── Tool Card ── */
+.tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.tool-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.tool-card.in-stack {
+    border-color: rgba(0, 196, 204, 0.3);
+    background: rgba(0, 196, 204, 0.03);
+}
+
+.tool-card.nvidia-product {
+    border-color: rgba(118, 185, 0, 0.2);
+    background: rgba(118, 185, 0, 0.02);
+}
+
+/* Stack badge */
+.tool-in-stack-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 100px;
+    background: rgba(0, 196, 204, 0.1);
+    border: 1px solid rgba(0, 196, 204, 0.3);
+    color: var(--teal);
+    text-transform: uppercase;
+}
+
+/* Card header */
+.tool-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-right: 4rem;
+}
+
+.tool-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border-subtle);
+}
+
+.tool-card.nvidia-product .tool-icon {
+    background: rgba(118, 185, 0, 0.08);
+    border-color: var(--border-accent);
+}
+
+.tool-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.tool-name {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tool-category {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* Description */
+.tool-description {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+}
+
+.tool-description.generating {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Meta row */
+.tool-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tool-meta-tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 100px;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+}
+
+.tool-meta-tag.nvidia {
+    border-color: var(--border-accent);
+    color: var(--nvidia-green);
+    background: rgba(118, 185, 0, 0.06);
+}
+
+.tool-meta-tag.stars {
+    color: var(--text-secondary);
+}
+
+.tool-nvidia-relevance {
+    font-size: 0.75rem;
+    color: var(--teal);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+/* Card actions */
+.tool-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.ask-orbit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--nvidia-green);
+    color: #000;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex: 1;
+    justify-content: center;
+}
+
+.ask-orbit-btn:hover {
+    background: var(--nvidia-green-bright);
+    transform: translateY(-1px);
+}
+
+.tool-docs-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.tool-docs-link:hover {
+    border-color: var(--border-accent);
+    color: var(--text-primary);
+}
+
+/* ── Empty state ── */
+.tools-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.tools-empty-icon {
+    font-size: 2rem;
+    opacity: 0.4;
+}
+
+.tools-empty-text {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+/* ── Section header ── */
+.tools-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.tools-section-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.tools-section-count {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+}
+
+/* Loading skeleton */
+.tool-card-skeleton {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.skeleton-line {
+    height: 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line.short { width: 40%; }
+.skeleton-line.medium { width: 70%; }
+.skeleton-line.full { width: 100%; }
+
+@keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}

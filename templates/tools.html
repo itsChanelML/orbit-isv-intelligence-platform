@@ -1,0 +1,465 @@
+{% extends "base.html" %}
+
+{% block title %}Developer Tools Library{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tools.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tools-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="/portal" style="text-decoration:none;">
+                <div class="sidebar-wordmark">Orbit<span>.</span></div>
+            </a>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Platform</span>
+            <a href="/portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="1" width="6" height="6" rx="1"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1"/>
+                </svg>
+                Home
+            </a>
+            <a href="/intake" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+                </svg>
+                Adoption Strategy
+            </a>
+            {% if adoption_strategies %}
+            <div style="padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.15rem;">
+                {% for strategy in adoption_strategies | reverse %}
+                <a href="/output/results" class="nav-item" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; color: var(--text-muted);">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;">
+                        <path d="M4 1h6l4 4v10H4V1z"/>
+                    </svg>
+                    {{ strategy.short_title or strategy.date }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <a href="/portal/tools" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 3h12M2 8h8M2 13h5"/>
+                </svg>
+                Tools Library
+            </a>
+            <a href="/portal/documents" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/><path d="M6 8h5M6 11h3"/>
+                </svg>
+                My Documents
+            </a>
+            <span class="nav-section-label" style="margin-top: 0.5rem;">Settings</span>
+            <a href="/portal/profile" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="8" cy="5" r="3"/>
+                    <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+                </svg>
+                Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-stack">
+            <div class="stack-header">
+                <span class="stack-label">Tech Stack</span>
+                <button class="stack-add-btn" onclick="openAddStack()">+ Add</button>
+            </div>
+            <button class="gcp-connect-btn" id="gcpBtn" onclick="syncGCP()">
+                <span id="gcpBtnText">⟳ Sync GCP</span>
+            </button>
+            <div id="stackItems">
+            {% if stack_items %}
+                {% for item in stack_items %}
+                <div class="stack-item">
+                    <div class="stack-item-dot"></div>
+                    <span class="stack-item-name">{{ item }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <span class="stack-empty">No stack connected yet</span>
+            {% endif %}
+            </div>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="user-chip">
+                <div class="user-avatar">{{ role[0].upper() if role else 'I' }}</div>
+                <div class="user-info">
+                    <span class="user-role">{{ role }}</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/>
+                </svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="tools-main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-title">Developer Tools Library</span>
+            </div>
+            <div class="topbar-right">
+                {% if role == 'admin' %}
+                <div class="view-toggle">
+                    <a href="/portal" class="toggle-btn">ISV View</a>
+                    <a href="/admin" class="toggle-btn">Admin View</a>
+                </div>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="tools-body" data-animate>
+
+            <!-- Tabs -->
+            <div class="tools-tabs">
+                <button class="tools-tab active" id="tab-nvidia" onclick="switchTab('nvidia')">
+                    NVIDIA Products
+                    <span class="tools-tab-count">{{ catalog.nvidia_products | length }}</span>
+                </button>
+                <button class="tools-tab" id="tab-oss" onclick="switchTab('oss')">
+                    OSS Tools
+                    <span class="tools-tab-count">{{ catalog.oss_tools | length }}</span>
+                </button>
+                <button class="tools-tab" id="tab-stack" onclick="switchTab('stack')">
+                    My Stack
+                    <span class="tools-tab-count">{{ catalog.isv_stack | length }}</span>
+                </button>
+            </div>
+
+            <!-- Search + Filter -->
+            <div class="tools-controls">
+                <input class="tools-search" type="text" id="toolsSearch"
+                    placeholder="Search tools..."
+                    oninput="filterTools()" />
+                <select class="tools-filter" id="categoryFilter" onchange="filterTools()">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <!-- NVIDIA Products Tab -->
+            <div id="panel-nvidia">
+                <div class="tools-section-header">
+                    <span class="tools-section-title">NVIDIA Products & Platforms</span>
+                    <span class="tools-section-count">{{ catalog.nvidia_products | length }} products</span>
+                </div>
+                <div class="tools-grid" id="grid-nvidia">
+                    {% for product in catalog.nvidia_products %}
+                    <div class="tool-card nvidia-product" data-name="{{ product.name }}" data-category="{{ product.category }}">
+                        {% if product.in_isv_stack %}
+                        <div class="tool-in-stack-badge">In Your Stack</div>
+                        {% endif %}
+                        <div class="tool-card-header">
+                            <div class="tool-icon">⚡</div>
+                            <div class="tool-title-group">
+                                <span class="tool-name">{{ product.name }}</span>
+                                <span class="tool-category">{{ product.category }}</span>
+                            </div>
+                        </div>
+                        <p class="tool-description {% if not product.description %}generating{% endif %}">
+                            {{ product.description or 'Generating description...' }}
+                        </p>
+                        <div class="tool-meta">
+                            <span class="tool-meta-tag nvidia">NVIDIA</span>
+                            {% if product.url %}
+                            <span class="tool-meta-tag">docs available</span>
+                            {% endif %}
+                        </div>
+                        <div class="tool-card-actions">
+                            <button class="ask-orbit-btn"
+                                onclick="sendToOrbit('{{ product.ask_orbit_prompt | replace("'", "\\'") }}')">
+                                ◈ Ask Orbit
+                            </button>
+                            {% if product.docs %}
+                            <a href="{{ product.docs }}" target="_blank" class="tool-docs-link" title="Documentation">↗</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- OSS Tools Tab -->
+            <div id="panel-oss" style="display:none;">
+                <div class="tools-section-header">
+                    <span class="tools-section-title">Open Source Developer Tools</span>
+                    <span class="tools-section-count">{{ catalog.oss_tools | length }} tools</span>
+                </div>
+                <div class="tools-grid" id="grid-oss">
+                    {% for tool in catalog.oss_tools %}
+                    <div class="tool-card {% if tool.in_isv_stack %}in-stack{% endif %}"
+                        data-name="{{ tool.name }}" data-category="{{ tool.category }}">
+                        {% if tool.in_isv_stack %}
+                        <div class="tool-in-stack-badge">In Your Stack</div>
+                        {% endif %}
+                        <div class="tool-card-header">
+                            <div class="tool-icon">🔧</div>
+                            <div class="tool-title-group">
+                                <span class="tool-name">{{ tool.name }}</span>
+                                <span class="tool-category">{{ tool.category }}</span>
+                            </div>
+                        </div>
+                        <p class="tool-description {% if not tool.description %}generating{% endif %}">
+                            {{ tool.description or 'Generating description...' }}
+                        </p>
+                        <div class="tool-meta">
+                            {% if tool.stars %}
+                            <span class="tool-meta-tag stars">⭐ {{ tool.stars }}</span>
+                            {% endif %}
+                            {% if tool.language %}
+                            <span class="tool-meta-tag">{{ tool.language }}</span>
+                            {% endif %}
+                            {% if tool.nvidia_compatible %}
+                            <span class="tool-meta-tag nvidia">NVIDIA ✓</span>
+                            {% endif %}
+                        </div>
+                        {% if tool.nvidia_relevance %}
+                        <div class="tool-nvidia-relevance">
+                            <span>⚡</span> Pairs with {{ tool.nvidia_relevance }}
+                        </div>
+                        {% endif %}
+                        <div class="tool-card-actions">
+                            <button class="ask-orbit-btn"
+                                onclick="sendToOrbit('{{ tool.ask_orbit_prompt | replace("'", "\\'") }}')">
+                                ◈ Ask Orbit
+                            </button>
+                            {% if tool.docs %}
+                            <a href="{{ tool.docs }}" target="_blank" class="tool-docs-link" title="Documentation">↗</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- My Stack Tab -->
+            <div id="panel-stack" style="display:none;">
+                <div class="tools-section-header">
+                    <span class="tools-section-title">Your Technology Stack</span>
+                    <span class="tools-section-count">{{ catalog.isv_stack | length }} tools</span>
+                </div>
+                {% if catalog.isv_stack %}
+                <div class="tools-grid" id="grid-stack">
+                    {% for tool in catalog.isv_stack %}
+                    <div class="tool-card in-stack" data-name="{{ tool.name }}" data-category="{{ tool.category or 'Custom Stack' }}">
+                        <div class="tool-in-stack-badge">In Your Stack</div>
+                        <div class="tool-card-header">
+                            <div class="tool-icon">🔷</div>
+                            <div class="tool-title-group">
+                                <span class="tool-name">{{ tool.name }}</span>
+                                <span class="tool-category">{{ tool.category or 'Custom Stack' }}</span>
+                            </div>
+                        </div>
+                        <p class="tool-description">{{ tool.description or '' }}</p>
+                        {% if tool.nvidia_relevance %}
+                        <div class="tool-nvidia-relevance">
+                            <span>⚡</span> Pairs with {{ tool.nvidia_relevance }}
+                        </div>
+                        {% endif %}
+                        <div class="tool-card-actions">
+                            <button class="ask-orbit-btn"
+                                onclick="sendToOrbit('{{ tool.ask_orbit_prompt | replace("'", "\\'") }}')">
+                                ◈ Ask Orbit
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="tools-empty">
+                    <div class="tools-empty-icon">🔧</div>
+                    <span class="tools-empty-text">No stack yet. Complete your adoption strategy intake or use the + Add button to add tools.</span>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Orbit Chat Panel (floating) -->
+<div id="orbitChatFloat" style="
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 360px;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(20px);
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    overflow: hidden;
+">
+    <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--nvidia-green),var(--teal));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:0.7rem;font-weight:800;color:#000;">O</div>
+            <span style="font-family:var(--font-display);font-size:0.9rem;font-weight:700;color:var(--text-primary);">Ask Orbit</span>
+        </div>
+        <button onclick="closeOrbitChat()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div id="floatMessages" style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem;max-height:300px;overflow-y:auto;"></div>
+    <div style="padding:0.75rem;border-top:1px solid var(--border-subtle);display:flex;gap:0.5rem;">
+        <input id="floatInput" type="text" placeholder="Ask Orbit anything..."
+            style="flex:1;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:0.6rem 0.85rem;color:var(--text-primary);font-family:var(--font-body);font-size:0.83rem;outline:none;"
+            onkeydown="if(event.key==='Enter') sendFloatMessage()" />
+        <button onclick="sendFloatMessage()"
+            style="width:32px;height:32px;border-radius:var(--radius-sm);background:var(--nvidia-green);border:none;cursor:pointer;color:#000;font-size:0.9rem;flex-shrink:0;">→</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Tab switching ──
+const categories = {
+    nvidia: {{ catalog.nvidia_categories | tojson }},
+    oss: {{ catalog.oss_categories | tojson }},
+    stack: []
+};
+
+let currentTab = 'nvidia';
+
+function switchTab(tab) {
+    currentTab = tab;
+    ['nvidia', 'oss', 'stack'].forEach(t => {
+        document.getElementById(`panel-${t}`).style.display = t === tab ? 'block' : 'none';
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    });
+    updateCategoryFilter(tab);
+    filterTools();
+}
+
+function updateCategoryFilter(tab) {
+    const select = document.getElementById('categoryFilter');
+    const cats = categories[tab] || [];
+    select.innerHTML = '<option value="">All Categories</option>';
+    cats.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        select.appendChild(opt);
+    });
+}
+
+// ── Search + Filter ──
+function filterTools() {
+    const query = document.getElementById('toolsSearch').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+    const grid = document.getElementById(`grid-${currentTab}`);
+    if (!grid) return;
+
+    grid.querySelectorAll('.tool-card').forEach(card => {
+        const name = card.dataset.name?.toLowerCase() || '';
+        const cat = card.dataset.category || '';
+        const matchQuery = !query || name.includes(query);
+        const matchCat = !category || cat === category;
+        card.style.display = matchQuery && matchCat ? 'flex' : 'none';
+    });
+}
+
+// ── Ask Orbit ──
+function sendToOrbit(prompt) {
+    const panel = document.getElementById('orbitChatFloat');
+    panel.style.display = 'flex';
+    panel.style.flexDirection = 'column';
+    document.getElementById('floatInput').value = prompt;
+    sendFloatMessage();
+}
+
+function closeOrbitChat() {
+    document.getElementById('orbitChatFloat').style.display = 'none';
+}
+
+async function sendFloatMessage() {
+    const input = document.getElementById('floatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    addFloatMessage('user', msg);
+    const typingId = addFloatMessage('orbit', '...', true);
+
+    try {
+        const res = await fetch('/portal/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        document.getElementById(typingId)?.remove();
+        addFloatMessage('orbit', data.response || 'Something went wrong.');
+    } catch (err) {
+        document.getElementById(typingId)?.remove();
+        addFloatMessage('orbit', 'Connection error. Please try again.');
+    }
+}
+
+function addFloatMessage(role, text, isTyping = false) {
+    const container = document.getElementById('floatMessages');
+    const id = 'msg-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = `display:flex;flex-direction:column;gap:0.2rem;max-width:85%;align-self:${role === 'user' ? 'flex-end' : 'flex-start'}`;
+    div.innerHTML = `
+        <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);padding:0 0.25rem;">${role === 'orbit' ? 'Orbit' : 'You'}</span>
+        <div style="padding:0.65rem 0.85rem;border-radius:12px;font-size:0.82rem;line-height:1.5;${role === 'user' ? 'background:var(--nvidia-green);color:#000;font-weight:500;border-bottom-right-radius:4px;' : 'background:var(--bg-card);border:1px solid var(--border-subtle);color:var(--text-primary);border-bottom-left-radius:4px;'}${isTyping ? 'opacity:0.5;font-style:italic;' : ''}">${text}</div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+// ── GCP Sync (reused from portal) ──
+async function syncGCP() {
+    const btn = document.getElementById('gcpBtn');
+    const btnText = document.getElementById('gcpBtnText');
+    if (!btn) return;
+    btn.classList.add('syncing');
+    btnText.textContent = '⟳ Syncing...';
+    try {
+        const res = await fetch('/portal/stack/gcp-sync', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const data = await res.json();
+        btnText.textContent = data.status === 'ok' ? '✓ Synced' : '⚠ Not configured';
+        setTimeout(() => { btnText.textContent = '⟳ Sync GCP'; }, 2000);
+    } catch {
+        btnText.textContent = '✗ Error';
+        setTimeout(() => { btnText.textContent = '⟳ Sync GCP'; }, 2000);
+    }
+    btn.classList.remove('syncing');
+}
+
+function openAddStack() {
+    const name = prompt('Enter technology name:');
+    if (name?.trim()) {
+        fetch('/portal/stack/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name.trim() })
+        }).then(() => location.reload());
+    }
+}
+
+// Init category filter for default tab
+updateCategoryFilter('nvidia');
+</script>
+{% endblock %}
