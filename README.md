@@ -28,7 +28,7 @@
 
 ---
 
-Orbit is an agentic ISV onboarding and adoption intelligence platform built on NVIDIA NIM and DGX Cloud. It automates the pre-work of ISV developer relations — learning who a software vendor is, what they build, and what they need — then uses multi-model NIM inference to generate a personalized DGX Cloud adoption strategy, deliverable, and concern responses in a single flow.
+Orbit is an agentic ISV onboarding and adoption intelligence platform built on NVIDIA NIM and DGX Cloud. It automates the pre-work of ISV developer relations — learning who a software vendor is, what they build, and what they need — then uses multi-model NIM inference to generate a personalized DGX Cloud adoption strategy, deliverable, and concern responses in a single flow. It also powers a verified ISV community where partners share wins, ask questions, and surface integration patterns — with Orbit responding in real time.
 
 | Role | Access Code |
 |---|---|
@@ -45,38 +45,39 @@ Orbit is an agentic ISV onboarding and adoption intelligence platform built on N
 | Develop go-to-market with strategic ISVs | ISV registry grounded in NVIDIA partner data, Nemotron pre-fills company profile automatically |
 | Create assets for conferences and hackathons | Generates Workshop guides, Jupyter Notebooks, Hackathon briefs, and Executive Adoption Briefs as downloadable deliverables |
 | Build developer adoption programs | Learning style inference routes each ISV to their preferred adoption format |
-| Measure ISV adoption and engagement | Admin dashboard with drop-off analytics, format preferences, world map, and monthly DevRel report |
+| Measure ISV adoption and engagement | Admin dashboard with drop-off analytics, format preferences, world map, community signals, and monthly DevRel report |
 | Drive ISV integrations with the NVIDIA ecosystem | GCP Service Usage API detects new ISV tech stack additions and triggers Orbit chat alerts |
-| Create sales and marketing assets with developers | Generates bespoke, ISV-specific adoption assets at the speed of a template but with the specificity of a custom engagement |
+| Create sales and marketing assets with developers | Generates bespoke adoption assets at the speed of a template but with the specificity of a custom engagement |
+| Build and scale developer communities | Verified ISV community board with Orbit AI replies, category filtering, reactions, and admin signal capture |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Orbit Platform                    │
-│              Flask + Python + Gunicorn               │
-│            Deployed on GCP Cloud Run                 │
-└──────────────────┬──────────────────────────────────┘
-                   │
-        ┌──────────┴──────────┐
-        │                     │
-┌───────▼────────┐   ┌────────▼────────┐
-│  NVIDIA NIM    │   │   Google Cloud  │
-│  ─────────────-│   │  ──────────────-│
-│  Nemotron 49B  │   │  Cloud Run      │
-│  Llama 3.1 8B  │   │  Service Usage  │
-│  Mistral       │   │  API (Stack     │
-│  Small 4       │   │  Detection)     │
-└────────────────┘   └─────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                      Orbit Platform                       │
+│                Flask + Python + Gunicorn                  │
+│                 Deployed on GCP Cloud Run                 │
+└───────────────────────┬──────────────────────────────────┘
+                        │
+           ┌────────────┴────────────┐
+           │                         │
+┌──────────▼───────┐     ┌───────────▼──────────┐
+│   NVIDIA NIM     │     │    Google Cloud       │
+│  ────────────────│     │  ────────────────────-│
+│  Nemotron 49B    │     │  Cloud Run            │
+│  Llama 3.1 8B    │     │  Cloud Build          │
+│  Mistral Small 4 │     │  Artifact Registry    │
+│                  │     │  Service Usage API    │
+└──────────────────┘     └──────────────────────┘
 ```
 
 ### Model Routing
 
 | Model | Provider | Role in Orbit |
 |---|---|---|
-| `llama-3.3-nemotron-super-49b-v1` | NVIDIA NIM | ISV recommendations, concern responses, Orbit chat, workshop/hackathon/exec brief generation |
+| `llama-3.3-nemotron-super-49b-v1` | NVIDIA NIM | ISV recommendations, concern responses, Orbit chat, workshop/hackathon/exec brief generation, community replies, tool descriptions |
 | `llama-3.1-8b-instruct` | Meta via NIM | Learning style inference from format ranking |
 | `mistral-small-4-119b-2603` | Mistral via NIM | Jupyter Notebook code generation |
 
@@ -127,55 +128,60 @@ Orbit is an agentic ISV onboarding and adoption intelligence platform built on N
 ## Features
 
 ### ISV Identity & Security
-- Strict email domain validation against company website (no consumer email domains)
+- Strict email domain validation against company website
 - OTP authentication with session-based security
-- Role-based access: ISV Team view and Admin / DevRel Manager view
+- Role-based access: ISV Team and Admin / DevRel Manager
 - NVIDIA ISV partner registry with tier recognition (Inception, Elite)
+- Returning user detection — skips identity steps on repeat visits
 
-### Intelligent Intake
-- 8-step conversational adoption strategy flow
-- ISV registry lookup with Nemotron pre-fill — company profile populated from NVIDIA partner data before the user types a word
-- Current tech stack selection with 16 preset technologies plus free-entry
-- Adoption concern capture with 8 preset blockers and free-text input
-- Drag-to-rank learning format selection (Workshop, Jupyter Notebook, Internal Hackathon)
+### Intelligent 8-Step Intake
+- ISV registry lookup with Nemotron pre-fill from NVIDIA partner data
+- Current tech stack selection (16 presets + free entry)
+- Adoption concern capture (8 presets + custom)
+- Drag-to-rank learning format selection
 
-### Multi-Model NIM Output Generation
-- 3 context-aware DGX Cloud integration recommendations with exact NIM microservice names
-- Learning style inference from format ranking patterns (Llama 3.1 8B)
-- 4 primary deliverable types based on team context:
-  - **Workshop Guide** (.md) — facilitated team session with structured exercises
-  - **Jupyter Notebook** (.ipynb) — step-by-step technical lab with runnable code
-  - **Hackathon Brief** (.md) — internal challenge brief with challenge structure and judging criteria
-  - **Executive Adoption Brief** (.md) — business-focused brief with ROI framing, use cases, competitive positioning, and next steps (triggered when "Exec-Facing Output" is selected)
-- Adoption concern responses with hyperlinked developers.nvidia.com resources
+### Multi-Model NIM Output — 4 Deliverable Types
+| Deliverable | Trigger | Format | Model |
+|---|---|---|---|
+| Workshop Guide | Workshop ranked #1 | `.md` | Nemotron-Super-49B |
+| Jupyter Notebook | Notebook ranked #1 | `.ipynb` | Mistral Small 4 |
+| Hackathon Brief | Hackathon ranked #1 | `.md` | Nemotron-Super-49B |
+| Executive Adoption Brief | Exec-Facing Output selected | `.md` | Nemotron-Super-49B |
+
+Executive briefs include: executive summary, business problem framing, strategic rationale, 3 business use cases with ROI signals, competitive advantage narrative, deployment acceleration story, risk mitigation, and a recommended next steps table.
 
 ### Developer Tools Library
-- Browsable directory of NVIDIA products (16) and OSS developer tools (30+)
-- Nemotron-generated 2-3 sentence descriptions cached per tool via `tools_cache.json`
-- Three tabs: NVIDIA Products, OSS Tools, My Stack
-- Ask Orbit button on every tool card pre-populates chat with "How can I use [Tool] at [Company]?"
-- NVIDIA product pairing suggestions for every OSS tool (e.g. LangChain → NVIDIA NIM + RAG pipelines)
+- 3-tab browsable directory: NVIDIA Products (16), OSS Tools (30+), My Stack
+- Nemotron-generated 2-3 sentence descriptions cached per tool
+- NVIDIA product pairing suggestions for every OSS tool
+- Ask Orbit button pre-populates chat with "How can I use [Tool] at [Company]?"
+
+### ISV Community Board
+- Persistent shared board visible to all verified ISV partners
+- 5 categories: Wins & Milestones, Best Practices, Questions, Integration Patterns, Announcements
+- Post, comment, react (👍 Helpful, 🔥 Fire, 💡 Insight)
+- Orbit AI replies on demand — Nemotron responds with NVIDIA docs, video tutorials, and upcoming events
+- Orbit tag identifies AI responses alongside human comments
+- Admin signals: trending topics, unanswered questions (DevRel action items), most active companies, Orbit response rate
 
 ### Documents Library
-- Persistent document store for all generated deliverables
-- File-based storage with JSON manifest per session
-- Preview, download, and delete for every document
+- Persistent file-based document store per session
+- Preview, download, and delete for all generated deliverables
 - Supports Workshop, Notebook, Hackathon Brief, and Executive Adoption Brief
-- Documents organized by type with metadata (size, date, strategy ID)
+- JSON manifest with metadata (type, size, date, strategy ID)
 
 ### Persistent ISV Portal
-- Orbit chat powered by Nemotron, grounded in ISV profile and generated outputs
+- Orbit chat powered by Nemotron, grounded in ISV profile and outputs
 - Tech stack sidebar with GCP Service Usage API auto-detection
-- Adoption strategy history saved with short-title descriptions
-- Profile page showing ISV identity, NVIDIA partner tier, products, learning style, and strategy history
+- Adoption strategy history with short-title descriptions
+- Profile page: ISV identity, NVIDIA tier, products, learning style, strategy history
 
 ### Admin DevRel Dashboard
-- Session analytics: total sessions, ISV sessions, completions, completion rate
-- Intake drop-off analysis by step
-- Learning format and style distribution
-- Trending topics from Orbit chat with suggested DevRel actions
-- World map of ISV locations via IP geolocation (ipinfo.io + Leaflet.js)
-- Monthly DevRel report auto-emailed via SendGrid on the last day of each month
+- Session analytics: total sessions, completions, completion rate, drop-off by step
+- Learning style and format preference distribution
+- Community signals: trending topics, unanswered questions, most active ISVs
+- World map of ISV locations (ipinfo.io + Leaflet.js)
+- Monthly report auto-emailed via SendGrid
 
 ---
 
@@ -185,7 +191,7 @@ Orbit is an agentic ISV onboarding and adoption intelligence platform built on N
 |---|---|---|
 | DGX Cloud | Infrastructure | Primary infrastructure recommendation for all ISVs |
 | NVIDIA NIM | Inference | Powers all three inference models in the platform |
-| Nemotron-Super-49B | LLM | Recommendations, chat, workshop/hackathon/exec brief generation |
+| Nemotron-Super-49B | LLM | Recommendations, chat, workshop/hackathon/exec brief, community replies, tool descriptions |
 | Llama 3.1 8B (NIM) | LLM | Learning style classification |
 | Mistral Small 4 (NIM) | LLM | Jupyter Notebook code generation |
 | MONAI | Healthcare AI | Recommended for medical imaging ISVs |
@@ -204,37 +210,32 @@ Orbit is an agentic ISV onboarding and adoption intelligence platform built on N
 
 ## Deployment
 
-Orbit is deployed on **GCP Cloud Run** — the same infrastructure layer that DGX Cloud runs on top of. The deployment architecture itself is a demonstration of the NVIDIA + Google Cloud partnership.
+Orbit is deployed on **GCP Cloud Run** — the same infrastructure layer that DGX Cloud runs on top of.
 
-### Why GCP Cloud Run (not Vercel)
-Vercel is a frontend platform built for Next.js. GCP Cloud Run keeps the architecture coherent: the app lives on the same hyperscaler that DGX Cloud runs on, GCP Service Usage API detects ISV tech stacks, and every architectural decision mirrors what we'd recommend to ISV partners.
+### Why GCP Cloud Run
+The deployment architecture is itself a demonstration of the NVIDIA + Google Cloud partnership. The app lives on the same hyperscaler that DGX Cloud runs on, GCP Service Usage API detects ISV tech stacks, and every architectural decision mirrors what we'd recommend to ISV partners.
 
 ### Deployment Files
 
 | File | Purpose |
 |---|---|
-| `Dockerfile` | Containerizes the Flask app using python:3.11-slim, installs dependencies, runs gunicorn |
-| `wsgi.py` | WSGI entry point for gunicorn — calls `create_app()` from `app.py` |
-| `.dockerignore` | Excludes `.env`, `venv/`, GCP credentials, and data files from the container |
-| `cloudbuild.yaml` | GCP Cloud Build CI/CD config for automated deploys |
-| `deploy.sh` | One-command deployment script (gitignored, contains env vars) |
+| `Dockerfile` | python:3.11-slim, installs dependencies, runs gunicorn |
+| `wsgi.py` | Gunicorn WSGI entry point |
+| `.dockerignore` | Excludes `.env`, `venv/`, credentials, data files |
+| `cloudbuild.yaml` | GCP Cloud Build CI/CD config |
+| `deploy.sh` | One-command deployment (gitignored) |
 
-### Deploy Your Own Instance
+### Deploy Your Own
 
 ```bash
 git clone https://github.com/itsChanelML/orbit-isv-intelligence-platform.git
 cd orbit-isv-intelligence-platform
 
-# Enable GCP APIs
 gcloud services enable run.googleapis.com containerregistry.googleapis.com cloudbuild.googleapis.com
 
-# Deploy
 gcloud run deploy orbit-isv-platform \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --memory 1Gi \
-  --timeout 300 \
+  --source . --region us-central1 --allow-unauthenticated \
+  --memory 1Gi --timeout 300 \
   --set-env-vars="NVIDIA_API_KEY=...,SENDGRID_API_KEY=...,IPINFO_TOKEN=...,GCP_PROJECT_ID=..."
 ```
 
@@ -245,32 +246,10 @@ gcloud run deploy orbit-isv-platform \
 ```bash
 git clone https://github.com/itsChanelML/orbit-isv-intelligence-platform.git
 cd orbit-isv-intelligence-platform
-
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-
-cp .env.example .env
-# Fill in your API keys
-
-python app.py
-# Visit http://127.0.0.1:5000
-```
-
-### Environment Variables
-
-```bash
-SECRET_KEY=your-secret-key
-DEBUG=True
-ISV_ACCESS_CODE=ORBIT-ISV-2025
-ADMIN_ACCESS_CODE=ORBIT-ADMIN-2025
-NVIDIA_API_KEY=nvapi-...
-GCP_SERVICE_ACCOUNT_KEY=path/to/service-account.json
-GCP_PROJECT_ID=your-project-id
-SENDGRID_API_KEY=SG....
-ADMIN_EMAIL=your-email@domain.com
-SENDGRID_FROM_EMAIL=your-verified-sender@domain.com
-IPINFO_TOKEN=your-token
+cp .env.example .env  # Fill in your API keys
+python app.py  # Visit http://127.0.0.1:5000
 ```
 
 ---
@@ -279,67 +258,75 @@ IPINFO_TOKEN=your-token
 
 ```
 orbit-isv-intelligence-platform/
-├── app.py                              # Flask entry point — registers all 6 blueprints
+├── app.py                              # Flask entry point — registers 7 blueprints
 ├── wsgi.py                             # Gunicorn WSGI entry point
 ├── config.py                           # Environment configuration
-├── requirements.txt                    # Python dependencies (incl. gunicorn)
-├── Dockerfile                          # Container definition for GCP Cloud Run
-├── .dockerignore                       # Files excluded from Docker build
-├── cloudbuild.yaml                     # GCP Cloud Build CI/CD config
-├── .env.example                        # Environment variable template
-├── PRODUCT_BRIEF.md                    # Full product brief (V1/V2/V3 roadmap)
+├── requirements.txt
+├── Dockerfile
+├── .dockerignore
+├── cloudbuild.yaml
+├── .env.example
+├── README.md
+├── PRODUCT_BRIEF.md
 ├── data/
 │   ├── isv_registry.json               # NVIDIA ISV partner database
-│   ├── nvidia_products_catalog.json    # NVIDIA product catalog (16 products, extensible)
+│   ├── nvidia_products_catalog.json    # NVIDIA product catalog (16 products)
 │   ├── oss_tools_catalog.json          # OSS developer tools catalog (30+ tools)
-│   ├── tools_cache.json                # Nemotron-generated tool descriptions (cached)
+│   ├── tools_cache.json                # Nemotron tool description cache
+│   ├── community.json                  # Shared persistent ISV community posts
 │   └── analytics.json                  # Session and event tracking
 ├── routes/
-│   ├── auth.py                         # Login, session management, decorators
+│   ├── auth.py                         # Login, session, decorators
 │   ├── intake.py                       # 8-step adoption strategy flow
 │   ├── output.py                       # NIM generation, exec brief, downloads
 │   ├── portal.py                       # ISV portal, GCP sync, Orbit chat, tools
-│   ├── documents.py                    # Document library, preview, download, delete
-│   └── admin.py                        # Dashboard, analytics, email reports
+│   ├── documents.py                    # Document library, preview, download
+│   ├── community.py                    # ISV community board, reactions, Orbit replies
+│   └── admin.py                        # Dashboard, analytics, community signals, email
 ├── services/
-│   ├── nim_service.py                  # All NIM API calls (3 models, multi-function)
-│   ├── registry_service.py             # ISV registry lookup + Nemotron prefill + OTP
+│   ├── nim_service.py                  # All NIM API calls (3 models, 10+ functions)
+│   ├── registry_service.py             # ISV registry lookup, Nemotron prefill, OTP
 │   ├── gcp_service.py                  # GCP Service Usage API integration
-│   ├── analytics_service.py            # Event logging + monthly report generation
-│   ├── email_service.py                # SendGrid report delivery + scheduling
-│   ├── exec_brief_service.py           # Executive adoption brief generation + markdown export
-│   ├── document_store.py               # File-based document management (save, get, delete)
-│   └── tools_service.py                # Tools catalog loading, Nemotron descriptions, caching
+│   ├── analytics_service.py            # Event logging, monthly report generation
+│   ├── email_service.py                # SendGrid delivery, monthly scheduling
+│   ├── exec_brief_service.py           # Executive adoption brief generation
+│   ├── document_store.py               # File-based document management
+│   ├── tools_service.py                # Tools catalog, Nemotron descriptions, caching
+│   └── community_service.py            # Community posts, reactions, Orbit AI replies
 ├── templates/
-│   ├── base.html                       # Dark theme, orbiting blob animation, design system
-│   ├── login.html                      # Access code entry
-│   ├── portal.html                     # ISV portal with Orbit chat panel
+│   ├── base.html                       # Dark theme, orbiting blob animation
+│   ├── login.html
+│   ├── portal.html                     # ISV portal with Orbit chat
 │   ├── intake.html                     # 8-step adoption strategy flow
-│   ├── output.html                     # Recommendations + deliverable preview
-│   ├── profile.html                    # ISV profile with strategy history
-│   ├── tools.html                      # Developer tools library (3 tabs)
-│   ├── documents.html                  # Documents library with preview/download
-│   ├── document_view.html              # Single document preview page
+│   ├── output.html                     # Recommendations + deliverable
+│   ├── profile.html                    # ISV profile page
+│   ├── tools.html                      # Developer tools library
+│   ├── documents.html                  # Documents library
+│   ├── document_view.html              # Single document preview
+│   ├── community.html                  # ISV community board
+│   ├── community_post.html             # Post detail + new post form
 │   └── admin.html                      # DevRel intelligence dashboard
 └── static/
     ├── css/
-    │   ├── main.css                    # Design system (NVIDIA theme, Syne + DM Sans)
-    │   ├── portal.css                  # Portal layout and Orbit chat panel
-    │   ├── intake.css                  # 8-step flow, concerns, stack presets
-    │   ├── output.css                  # Recommendations and deliverable preview
-    │   ├── admin.css                   # Dashboard panels and world map
-    │   ├── profile.css                 # ISV profile page
-    │   ├── tools.css                   # Developer tools library cards and tabs
-    │   └── documents.css               # Documents library and document view
+    │   ├── main.css                    # Design system (NVIDIA theme)
+    │   ├── portal.css
+    │   ├── intake.css
+    │   ├── output.css
+    │   ├── admin.css
+    │   ├── profile.css
+    │   ├── tools.css
+    │   ├── documents.css
+    │   └── community.css
     └── js/
-        └── orbit.js                    # Mouse parallax, entrance animations
+        └── orbit.js
 ```
 
 ---
 
 ## Built By
 
-**Chanel Power** — Senior ML Engineer, Startup Advisor | Founder, Mentor Me Collective
+**Chanel Power** — Senior ML Engineer, Technical Advisor | Founder, Mentor Me Collective
+
 
 [![GitHub](https://img.shields.io/badge/GitHub-itsChanelML-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/itsChanelML)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Chanel%20Power-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/powerc1)
