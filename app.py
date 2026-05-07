@@ -6,18 +6,19 @@ from routes.output import output_bp
 from routes.portal import portal_bp
 from routes.admin import admin_bp
 from routes.documents import documents_bp
+from routes.community import community_bp
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(intake_bp)
     app.register_blueprint(output_bp)
     app.register_blueprint(portal_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(documents_bp)
+    app.register_blueprint(community_bp)
 
     return app
 

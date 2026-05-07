@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}{% if post %}{{ post.title }}{% else %}New Post{% endif %}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="community-shell">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="/portal" style="text-decoration:none;"><div class="sidebar-wordmark">Orbit<span>.</span></div></a>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Platform</span>
+            <a href="/portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                Home
+            </a>
+            <a href="/intake" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+                Adoption Strategy
+            </a>
+            <a href="/portal/community" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="6" r="3"/><circle cx="11" cy="6" r="3"/><path d="M1 14c0-2.2 1.8-4 4-4h6c2.2 0 4 1.8 4 4"/></svg>
+                Community
+            </a>
+            <a href="/portal/documents" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/></svg>
+                My Documents
+            </a>
+            <span class="nav-section-label" style="margin-top:0.5rem;">Settings</span>
+            <a href="/portal/profile" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+                Profile
+            </a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/></svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <div class="community-main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <a href="/portal/community" style="color:var(--text-muted);text-decoration:none;font-size:0.82rem;">← Community</a>
+            </div>
+            {% if post %}
+            <div class="topbar-right">
+                <button onclick="deletePost('{{ post.id }}')" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;font-family:var(--font-mono);">Delete post</button>
+            </div>
+            {% endif %}
+        </header>
+
+        <div style="padding:1.5rem 2.5rem;max-width:760px;display:flex;flex-direction:column;gap:1.25rem;" data-animate>
+
+            {% if post %}
+            <!-- Post Detail -->
+            <div class="post-detail-header">
+                <div class="post-header">
+                    <span class="post-cat-badge {{ post.category }}">{{ post.category_icon }} {{ post.category_label }}</span>
+                </div>
+                <h1 class="post-detail-title">{{ post.title }}</h1>
+                <div class="post-meta">
+                    <span class="post-author">by <strong>{{ post.author_name }}</strong> · {{ post.author_company }}</span>
+                    <span class="post-stat">📅 {{ post.date }} at {{ post.time }}</span>
+                    <span class="post-stat">👁 {{ post.view_count or 0 }} views</span>
+                </div>
+                <p class="post-detail-body">{{ post.body }}</p>
+                {% if post.tags %}
+                <div class="post-tags">{% for tag in post.tags %}<span class="post-tag">{{ tag }}</span>{% endfor %}</div>
+                {% endif %}
+
+                <!-- Reactions -->
+                <div class="reactions-row">
+                    {% for r_type, r_label in reaction_labels.items() %}
+                    <button class="reaction-btn" onclick="react('{{ post.id }}', '{{ r_type }}', this)">
+                        {{ r_label }} <span class="reaction-count">{{ post.reactions.get(r_type, 0) }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="comments-section">
+                <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.25rem;">
+                    {{ post.comments | length }} {{ 'reply' if post.comments | length == 1 else 'replies' }}
+                </div>
+
+                {% for comment in post.comments %}
+                <div class="comment-card {% if comment.is_orbit %}orbit-comment{% endif %}">
+                    <div class="comment-header">
+                        <div class="comment-avatar">
+                            {% if comment.is_orbit %}◈{% else %}{{ comment.author_name[0].upper() }}{% endif %}
+                        </div>
+                        <div>
+                            <div class="comment-author-name">
+                                {{ comment.author_name }}
+                                {% if comment.is_orbit %}<span class="orbit-tag" style="margin-left:0.4rem;">◈ Orbit · Nemotron</span>{% endif %}
+                            </div>
+                            <div class="comment-author-company">{{ comment.author_company }}</div>
+                        </div>
+                        <span class="comment-time" style="margin-left:auto;">{{ comment.date }}</span>
+                    </div>
+                    <div class="comment-body">{{ comment.body }}</div>
+                </div>
+                {% endfor %}
+
+                <!-- Add Comment Form -->
+                <div class="new-comment-form">
+                    <form method="POST" action="/portal/community/post/{{ post.id }}/comment">
+                        <textarea class="comment-input" name="body"
+                            placeholder="Share your experience, ask a follow-up, or add context..."></textarea>
+                        <div class="comment-actions">
+                            {% if not post.orbit_responded %}
+                            <button type="button" class="ask-orbit-community-btn" id="orbitReplyBtn"
+                                onclick="askOrbit('{{ post.id }}')">
+                                ◈ Ask Orbit to respond
+                            </button>
+                            {% else %}
+                            <span style="font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);">◈ Orbit has responded</span>
+                            {% endif %}
+                            <button type="submit" class="intake-btn-next" style="padding:0.5rem 1.25rem;font-size:0.85rem;">Post Reply →</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- New Post Form -->
+            <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;">// new post</div>
+            <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.02em;margin:0;">Share with the community.</h2>
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">Your post is visible to all verified NVIDIA ISV partners.</p>
+
+            <form class="new-post-form" method="POST" action="/portal/community/new">
+
+                <div class="form-field">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="category" required>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.icon }} {{ cat.label }} — {{ cat.description }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Title</label>
+                    <input class="form-input" type="text" name="title"
+                        placeholder="e.g. Achieved sub-100ms inference with NIM on DGX Cloud"
+                        required maxlength="200" />
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Your Post</label>
+                    <textarea class="form-textarea" name="body"
+                        placeholder="Share your full story, question, or pattern. The more detail, the more helpful it is to the community."
+                        required style="min-height:160px;"></textarea>
+                </div>
+
+                <div class="form-field">
+                    <label class="form-label">Tags (comma separated)</label>
+                    <input class="form-input" type="text" name="tags"
+                        placeholder="e.g. NIM, TensorRT-LLM, Healthcare, DGX Cloud" />
+                </div>
+
+                <div style="display:flex;gap:0.75rem;align-items:center;justify-content:flex-end;">
+                    <a href="/portal/community" style="color:var(--text-muted);font-size:0.82rem;text-decoration:none;">Cancel</a>
+                    <button type="submit" class="intake-btn-next" style="padding:0.65rem 1.5rem;">Post to Community →</button>
+                </div>
+            </form>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function react(postId, type, btn) {
+    const res = await fetch(`/portal/community/post/${postId}/react`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type})
+    });
+    const data = await res.json();
+    if (data.reactions) {
+        const labels = {'helpful': '👍 Helpful', 'fire': '🔥 Fire', 'insight': '💡 Insight'};
+        btn.innerHTML = `${labels[type]} <span class="reaction-count">${data.reactions[type]}</span>`;
+        btn.classList.toggle('active');
+    }
+}
+
+async function askOrbit(postId) {
+    const btn = document.getElementById('orbitReplyBtn');
+    btn.disabled = true;
+    btn.textContent = '◈ Orbit is thinking...';
+    try {
+        const res = await fetch(`/portal/community/post/${postId}/orbit-reply`, {method: 'POST'});
+        const data = await res.json();
+        if (data.status === 'ok') {
+            location.reload();
+        } else {
+            btn.textContent = data.error || 'Already responded';
+        }
+    } catch {
+        btn.textContent = '✗ Error — try again';
+        btn.disabled = false;
+    }
+}
+
+async function deletePost(postId) {
+    if (!confirm('Delete this post?')) return;
+    const res = await fetch(`/portal/community/post/${postId}/delete`, {method: 'POST'});
+    if (res.ok) window.location.href = '/portal/community';
+}
+</script>
+{% endblock %}

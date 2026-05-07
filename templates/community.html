@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}ISV Community{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="community-shell">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <a href="/portal" style="text-decoration:none;"><div class="sidebar-wordmark">Orbit<span>.</span></div></a>
+            <div class="sidebar-dot"></div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="nav-section-label">Platform</span>
+            <a href="/portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                Home
+            </a>
+            <a href="/intake" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+                Adoption Strategy
+            </a>
+            <a href="/portal/tools" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12M2 8h8M2 13h5"/></svg>
+                Tools Library
+            </a>
+            <a href="/portal/community" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="6" r="3"/><circle cx="11" cy="6" r="3"/><path d="M1 14c0-2.2 1.8-4 4-4h6c2.2 0 4 1.8 4 4"/></svg>
+                Community
+            </a>
+            <a href="/portal/documents" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h6l4 4v10H4V1z"/><path d="M9 1v4h4"/></svg>
+                My Documents
+            </a>
+            <span class="nav-section-label" style="margin-top:0.5rem;">Settings</span>
+            <a href="/portal/profile" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+                Profile
+            </a>
+        </nav>
+        <div class="sidebar-stack">
+            <div class="stack-header"><span class="stack-label">Tech Stack</span></div>
+            {% if stack_items %}{% for item in stack_items %}<div class="stack-item"><div class="stack-item-dot"></div><span class="stack-item-name">{{ item }}</span></div>{% endfor %}
+            {% else %}<span class="stack-empty">No stack connected yet</span>{% endif %}
+        </div>
+        <div class="sidebar-bottom">
+            <div class="user-chip">
+                <div class="user-avatar">{{ role[0].upper() if role else 'I' }}</div>
+                <div class="user-info"><span class="user-role">{{ role }}</span></div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M11 11l3-3-3-3M14 8H6"/></svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <div class="community-main">
+        <header class="topbar">
+            <div class="topbar-left"><span class="topbar-title">ISV Community</span></div>
+            <div class="topbar-right">
+                <a href="/portal/community/new" class="restart-btn">+ New Post</a>
+            </div>
+        </header>
+
+        <div class="community-body" data-animate>
+
+            <!-- Feed -->
+            <div class="community-feed">
+
+                <!-- Search -->
+                <form method="GET" action="/portal/community">
+                    <input class="community-search" type="text" name="search"
+                        placeholder="Search posts, tags, companies..."
+                        value="{{ search }}" />
+                    <input type="hidden" name="category" value="{{ active_category }}" />
+                </form>
+
+                <!-- Category Pills -->
+                <div class="community-categories">
+                    <a href="/portal/community" class="cat-pill {% if active_category == 'all' %}active{% endif %}">All Posts</a>
+                    {% for cat in categories %}
+                    <a href="/portal/community?category={{ cat.id }}" class="cat-pill {% if active_category == cat.id %}active{% endif %}">
+                        {{ cat.icon }} {{ cat.label }}
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <!-- Posts -->
+                {% if posts %}
+                {% for post in posts %}
+                <a href="/portal/community/post/{{ post.id }}" class="post-card" style="text-decoration:none;">
+                    <div class="post-votes">
+                        <div class="post-reaction-mini">{{ post.total_reactions or 0 }}<span>pts</span></div>
+                        <div class="post-reaction-mini">{{ post.comment_count or 0 }}<span>replies</span></div>
+                    </div>
+                    <div class="post-main">
+                        <div class="post-header">
+                            <span class="post-cat-badge {{ post.category }}">{{ post.category_icon }} {{ post.category_label }}</span>
+                            {% if post.orbit_responded %}<span class="orbit-responded-badge">◈ Orbit replied</span>{% endif %}
+                        </div>
+                        <span class="post-title">{{ post.title }}</span>
+                        <p class="post-excerpt">{{ post.body }}</p>
+                        <div class="post-meta">
+                            <span class="post-author">by <strong>{{ post.author_name }}</strong> · {{ post.author_company }}</span>
+                            <span class="post-stat">📅 {{ post.date }}</span>
+                            <span class="post-stat">👁 {{ post.view_count or 0 }}</span>
+                        </div>
+                        {% if post.tags %}
+                        <div class="post-tags">
+                            {% for tag in post.tags[:4] %}<span class="post-tag">{{ tag }}</span>{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+
+                {% else %}
+                <div class="community-empty">
+                    <div class="community-empty-icon">💬</div>
+                    <h3 class="community-empty-title">No posts yet</h3>
+                    <p class="community-empty-text">Be the first to share a win, ask a question, or post an integration pattern with the ISV community.</p>
+                    <a href="/portal/community/new" class="new-post-btn" style="margin-top:1rem;max-width:200px;">+ Start a post</a>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="community-sidebar-right">
+
+                <a href="/portal/community/new" class="new-post-btn">+ New Post</a>
+
+                <!-- Categories widget -->
+                <div class="community-widget">
+                    <div class="widget-header">Categories</div>
+                    <div class="widget-body">
+                        {% for cat in categories %}
+                        <a href="/portal/community?category={{ cat.id }}" class="widget-cat-row">
+                            <span class="widget-cat-name">{{ cat.icon }} {{ cat.label }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Upcoming events widget -->
+                <div class="community-widget">
+                    <div class="widget-header">⚡ Upcoming Events</div>
+                    <div class="widget-body">
+                        {% for event in [
+                            ('NVIDIA GTC 2027', 'March 2027', 'https://www.nvidia.com/gtc/'),
+                            ('DLI: NIM Deployment Workshop', 'Monthly', 'https://www.nvidia.com/en-us/training/'),
+                            ('ISV DevRel Office Hours', 'Thursdays', 'https://developer.nvidia.com/'),
+                            ('NYC Tech Week AI Summit', 'June 2026', 'https://nyctechweek.xyz')
+                        ] %}
+                        <div class="widget-event">
+                            <a href="{{ event[2] }}" target="_blank" class="widget-event-name">{{ event[0] }}</a>
+                            <span class="widget-event-date">{{ event[1] }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
