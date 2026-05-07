@@ -28,8 +28,6 @@
 
 ---
 
-> Built as a portfolio project for the **Senior Developer Relations Manager**
-
 Orbit is an agentic ISV onboarding and adoption intelligence platform built on NVIDIA NIM and DGX Cloud. It automates the pre-work of ISV developer relations — learning who a software vendor is, what they build, and what they need — then uses multi-model NIM inference to generate a personalized DGX Cloud adoption strategy, deliverable, and concern responses in a single flow.
 
 | Role | Access Code |
@@ -41,16 +39,15 @@ Orbit is an agentic ISV onboarding and adoption intelligence platform built on N
 
 ## What This Demonstrates
 
-This project directly maps to the responsibilities of the DGX Cloud DevRel role:
-
 | Role Requirement | Orbit Implementation |
 |---|---|
 | Evangelize DGX Cloud to ISV partners | Conversational intake surfaces NIM microservices and DGX Cloud integration patterns specific to each ISV |
 | Develop go-to-market with strategic ISVs | ISV registry grounded in NVIDIA partner data, Nemotron pre-fills company profile automatically |
-| Create assets for conferences and hackathons | Generates Workshop guides, Jupyter Notebooks, and Hackathon briefs as downloadable deliverables |
+| Create assets for conferences and hackathons | Generates Workshop guides, Jupyter Notebooks, Hackathon briefs, and Executive Adoption Briefs as downloadable deliverables |
 | Build developer adoption programs | Learning style inference routes each ISV to their preferred adoption format |
 | Measure ISV adoption and engagement | Admin dashboard with drop-off analytics, format preferences, world map, and monthly DevRel report |
 | Drive ISV integrations with the NVIDIA ecosystem | GCP Service Usage API detects new ISV tech stack additions and triggers Orbit chat alerts |
+| Create sales and marketing assets with developers | Generates bespoke, ISV-specific adoption assets at the speed of a template but with the specificity of a custom engagement |
 
 ---
 
@@ -79,7 +76,7 @@ This project directly maps to the responsibilities of the DGX Cloud DevRel role:
 
 | Model | Provider | Role in Orbit |
 |---|---|---|
-| `llama-3.3-nemotron-super-49b-v1` | NVIDIA NIM | ISV recommendations, concern responses, Orbit chat, workshop/hackathon generation |
+| `llama-3.3-nemotron-super-49b-v1` | NVIDIA NIM | ISV recommendations, concern responses, Orbit chat, workshop/hackathon/exec brief generation |
 | `llama-3.1-8b-instruct` | Meta via NIM | Learning style inference from format ranking |
 | `mistral-small-4-119b-2603` | Mistral via NIM | Jupyter Notebook code generation |
 
@@ -129,32 +126,56 @@ This project directly maps to the responsibilities of the DGX Cloud DevRel role:
 
 ## Features
 
-### ISV Onboarding Flow
-- **Identity verification** with strict email domain matching against company website
-- **OTP authentication** (demo mode with hint display)
-- **ISV Registry lookup** — Nemotron pre-fills company profile from NVIDIA partner database
-- **8-step conversational intake** collecting company info, tech stack, problem statement, tools, concerns, team context, and learning format preference
-- **Drag-to-rank** learning format selection (Workshop, Jupyter Notebook, Hackathon)
+### ISV Identity & Security
+- Strict email domain validation against company website (no consumer email domains)
+- OTP authentication with session-based security
+- Role-based access: ISV Team view and Admin / DevRel Manager view
+- NVIDIA ISV partner registry with tier recognition (Inception, Elite)
 
-### NIM-Powered Output Generation
-- **3 context-aware DGX Cloud integration recommendations** with exact NIM microservice names, NVIDIA stack components, and partner tools
-- **Learning style inference** from format ranking patterns
-- **Primary deliverable generation** based on #1 ranked format
-- **Adoption concern responses** with hyperlinked developers.nvidia.com resources
+### Intelligent Intake
+- 8-step conversational adoption strategy flow
+- ISV registry lookup with Nemotron pre-fill — company profile populated from NVIDIA partner data before the user types a word
+- Current tech stack selection with 16 preset technologies plus free-entry
+- Adoption concern capture with 8 preset blockers and free-text input
+- Drag-to-rank learning format selection (Workshop, Jupyter Notebook, Internal Hackathon)
+
+### Multi-Model NIM Output Generation
+- 3 context-aware DGX Cloud integration recommendations with exact NIM microservice names
+- Learning style inference from format ranking patterns (Llama 3.1 8B)
+- 4 primary deliverable types based on team context:
+  - **Workshop Guide** (.md) — facilitated team session with structured exercises
+  - **Jupyter Notebook** (.ipynb) — step-by-step technical lab with runnable code
+  - **Hackathon Brief** (.md) — internal challenge brief with challenge structure and judging criteria
+  - **Executive Adoption Brief** (.md) — business-focused brief with ROI framing, use cases, competitive positioning, and next steps (triggered when "Exec-Facing Output" is selected)
+- Adoption concern responses with hyperlinked developers.nvidia.com resources
+
+### Developer Tools Library
+- Browsable directory of NVIDIA products (16) and OSS developer tools (30+)
+- Nemotron-generated 2-3 sentence descriptions cached per tool via `tools_cache.json`
+- Three tabs: NVIDIA Products, OSS Tools, My Stack
+- Ask Orbit button on every tool card pre-populates chat with "How can I use [Tool] at [Company]?"
+- NVIDIA product pairing suggestions for every OSS tool (e.g. LangChain → NVIDIA NIM + RAG pipelines)
+
+### Documents Library
+- Persistent document store for all generated deliverables
+- File-based storage with JSON manifest per session
+- Preview, download, and delete for every document
+- Supports Workshop, Notebook, Hackathon Brief, and Executive Adoption Brief
+- Documents organized by type with metadata (size, date, strategy ID)
 
 ### Persistent ISV Portal
-- **Tech stack sidebar** with GCP Service Usage API auto-detection and manual entry
-- **Orbit chat** powered by Nemotron, grounded in ISV profile and generated outputs
-- **Adoption strategy history** saved per session with short-title descriptions
-- **Profile page** showing ISV identity, NVIDIA partner tier, products, and strategy history
+- Orbit chat powered by Nemotron, grounded in ISV profile and generated outputs
+- Tech stack sidebar with GCP Service Usage API auto-detection
+- Adoption strategy history saved with short-title descriptions
+- Profile page showing ISV identity, NVIDIA partner tier, products, learning style, and strategy history
 
 ### Admin DevRel Dashboard
-- Active users, completion rates, drop-off by intake step
-- Learning style distribution (inferred by Llama 3.1 8B)
-- Format preference breakdown
+- Session analytics: total sessions, ISV sessions, completions, completion rate
+- Intake drop-off analysis by step
+- Learning format and style distribution
 - Trending topics from Orbit chat with suggested DevRel actions
 - World map of ISV locations via IP geolocation (ipinfo.io + Leaflet.js)
-- Monthly report auto-generated and emailed via SendGrid
+- Monthly DevRel report auto-emailed via SendGrid on the last day of each month
 
 ---
 
@@ -164,7 +185,7 @@ This project directly maps to the responsibilities of the DGX Cloud DevRel role:
 |---|---|---|
 | DGX Cloud | Infrastructure | Primary infrastructure recommendation for all ISVs |
 | NVIDIA NIM | Inference | Powers all three inference models in the platform |
-| Nemotron-Super-49B | LLM | Recommendations, chat, workshop/hackathon generation |
+| Nemotron-Super-49B | LLM | Recommendations, chat, workshop/hackathon/exec brief generation |
 | Llama 3.1 8B (NIM) | LLM | Learning style classification |
 | Mistral Small 4 (NIM) | LLM | Jupyter Notebook code generation |
 | MONAI | Healthcare AI | Recommended for medical imaging ISVs |
@@ -195,7 +216,7 @@ Vercel is a frontend platform built for Next.js. GCP Cloud Run keeps the archite
 | `Dockerfile` | Containerizes the Flask app using python:3.11-slim, installs dependencies, runs gunicorn |
 | `wsgi.py` | WSGI entry point for gunicorn — calls `create_app()` from `app.py` |
 | `.dockerignore` | Excludes `.env`, `venv/`, GCP credentials, and data files from the container |
-| `cloudbuild.yaml` | GCP Cloud Build config for automated CI/CD on push to main |
+| `cloudbuild.yaml` | GCP Cloud Build CI/CD config for automated deploys |
 | `deploy.sh` | One-command deployment script (gitignored, contains env vars) |
 
 ### Deploy Your Own Instance
@@ -258,50 +279,60 @@ IPINFO_TOKEN=your-token
 
 ```
 orbit-isv-intelligence-platform/
-├── app.py                           # Flask entry point
-├── wsgi.py                          # Gunicorn WSGI entry point
-├── config.py                        # Environment configuration
-├── requirements.txt                 # Python dependencies (incl. gunicorn)
-├── Dockerfile                       # Container definition for GCP Cloud Run
-├── .dockerignore                    # Files excluded from Docker build
-├── cloudbuild.yaml                  # GCP Cloud Build CI/CD config
-├── .env.example                     # Environment variable template
-├── PRODUCT_BRIEF.md                 # Full product brief (V1/V2/V3 roadmap)
-├── README.md
+├── app.py                              # Flask entry point — registers all 6 blueprints
+├── wsgi.py                             # Gunicorn WSGI entry point
+├── config.py                           # Environment configuration
+├── requirements.txt                    # Python dependencies (incl. gunicorn)
+├── Dockerfile                          # Container definition for GCP Cloud Run
+├── .dockerignore                       # Files excluded from Docker build
+├── cloudbuild.yaml                     # GCP Cloud Build CI/CD config
+├── .env.example                        # Environment variable template
+├── PRODUCT_BRIEF.md                    # Full product brief (V1/V2/V3 roadmap)
 ├── data/
-│   ├── isv_registry.json            # NVIDIA ISV partner database
-│   ├── nvidia_products_catalog.json # Full NVIDIA product catalog (16 products)
-│   └── analytics.json               # Session and event tracking
+│   ├── isv_registry.json               # NVIDIA ISV partner database
+│   ├── nvidia_products_catalog.json    # NVIDIA product catalog (16 products, extensible)
+│   ├── oss_tools_catalog.json          # OSS developer tools catalog (30+ tools)
+│   ├── tools_cache.json                # Nemotron-generated tool descriptions (cached)
+│   └── analytics.json                  # Session and event tracking
 ├── routes/
-│   ├── auth.py                      # Login, session, decorators
-│   ├── intake.py                    # 8-step adoption strategy flow
-│   ├── output.py                    # NIM generation, downloads
-│   ├── portal.py                    # ISV portal, GCP sync, Orbit chat
-│   └── admin.py                     # Dashboard, reports, email
+│   ├── auth.py                         # Login, session management, decorators
+│   ├── intake.py                       # 8-step adoption strategy flow
+│   ├── output.py                       # NIM generation, exec brief, downloads
+│   ├── portal.py                       # ISV portal, GCP sync, Orbit chat, tools
+│   ├── documents.py                    # Document library, preview, download, delete
+│   └── admin.py                        # Dashboard, analytics, email reports
 ├── services/
-│   ├── nim_service.py               # All NIM API calls (3 models)
-│   ├── registry_service.py          # ISV registry lookup + Nemotron prefill
-│   ├── gcp_service.py               # GCP Service Usage API integration
-│   ├── analytics_service.py         # Event logging + monthly report generation
-│   └── email_service.py             # SendGrid report delivery
+│   ├── nim_service.py                  # All NIM API calls (3 models, multi-function)
+│   ├── registry_service.py             # ISV registry lookup + Nemotron prefill + OTP
+│   ├── gcp_service.py                  # GCP Service Usage API integration
+│   ├── analytics_service.py            # Event logging + monthly report generation
+│   ├── email_service.py                # SendGrid report delivery + scheduling
+│   ├── exec_brief_service.py           # Executive adoption brief generation + markdown export
+│   ├── document_store.py               # File-based document management (save, get, delete)
+│   └── tools_service.py                # Tools catalog loading, Nemotron descriptions, caching
 ├── templates/
-│   ├── base.html                    # Dark theme, orbiting blob animation
-│   ├── login.html                   # Access code entry
-│   ├── portal.html                  # ISV portal with Orbit chat
-│   ├── intake.html                  # 8-step adoption strategy flow
-│   ├── output.html                  # Recommendations + deliverable
-│   ├── profile.html                 # ISV profile page
-│   └── admin.html                   # DevRel intelligence dashboard
+│   ├── base.html                       # Dark theme, orbiting blob animation, design system
+│   ├── login.html                      # Access code entry
+│   ├── portal.html                     # ISV portal with Orbit chat panel
+│   ├── intake.html                     # 8-step adoption strategy flow
+│   ├── output.html                     # Recommendations + deliverable preview
+│   ├── profile.html                    # ISV profile with strategy history
+│   ├── tools.html                      # Developer tools library (3 tabs)
+│   ├── documents.html                  # Documents library with preview/download
+│   ├── document_view.html              # Single document preview page
+│   └── admin.html                      # DevRel intelligence dashboard
 └── static/
     ├── css/
-    │   ├── main.css                 # Design system (NVIDIA theme, Syne + DM Sans)
-    │   ├── portal.css               # Portal layout and Orbit chat panel
-    │   ├── intake.css               # 8-step flow, concerns, stack presets
-    │   ├── output.css               # Recommendations and deliverable preview
-    │   ├── admin.css                # Dashboard panels and world map
-    │   └── profile.css              # ISV profile page
+    │   ├── main.css                    # Design system (NVIDIA theme, Syne + DM Sans)
+    │   ├── portal.css                  # Portal layout and Orbit chat panel
+    │   ├── intake.css                  # 8-step flow, concerns, stack presets
+    │   ├── output.css                  # Recommendations and deliverable preview
+    │   ├── admin.css                   # Dashboard panels and world map
+    │   ├── profile.css                 # ISV profile page
+    │   ├── tools.css                   # Developer tools library cards and tabs
+    │   └── documents.css               # Documents library and document view
     └── js/
-        └── orbit.js                 # Mouse parallax, entrance animations
+        └── orbit.js                    # Mouse parallax, entrance animations
 ```
 
 ---
@@ -310,8 +341,5 @@ orbit-isv-intelligence-platform/
 
 **Chanel Power** — Senior ML Engineer, Startup Advisor | Founder, Mentor Me Collective
 
-Portfolio project for NVIDIA Senior Developer Relations Manager 
-
 [![GitHub](https://img.shields.io/badge/GitHub-itsChanelML-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/itsChanelML)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Chanel%20Power-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/powerc1)
-[![NVIDIA GTC](https://img.shields.io/badge/NVIDIA%20GTC-2026%20Attendee-76B900?style=flat-square&logo=nvidia&logoColor=white)](https://www.nvidia.com/gtc/)
