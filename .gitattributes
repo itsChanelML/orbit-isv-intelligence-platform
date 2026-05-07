@@ -1,0 +1,10 @@
+# Ignore generated frontend assets
+dist/** linguist-generated=true
+build/** linguist-generated=true
+
+# Ignore static site files
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+
+# Prioritize backend
+*.py linguist-language=Python
