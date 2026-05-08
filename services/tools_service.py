@@ -294,8 +294,15 @@ def get_full_tools_catalog(company_name: Optional[str] = None, isv_stack: Option
     oss_tools = load_oss_tools()
 
     # Generate descriptions for all tools (cached or NIM)
-    nvidia_descriptions = generate_descriptions_batch(nvidia_products, max_tools=5)
-    oss_descriptions = generate_descriptions_batch(oss_tools, max_tools=5)
+    try:
+        nvidia_descriptions = generate_descriptions_batch(nvidia_products, max_tools=5)
+    except Exception:
+        nvidia_descriptions = {}
+
+    try:
+        oss_descriptions = generate_descriptions_batch(oss_tools, max_tools=5)
+    except Exception:
+        oss_descriptions = {}
 
     # Build nvidia section with descriptions and Ask Orbit prompts
     nvidia_section = []
