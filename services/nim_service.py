@@ -67,7 +67,7 @@ Respond ONLY with a valid JSON array of exactly 3 objects. Each object must have
 
 Return only the JSON array. No preamble, no markdown, no explanation."""
 
-    raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=1500)
+    raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=800)
 
     # Clean and parse JSON
     clean = raw.strip()
@@ -119,7 +119,7 @@ Respond ONLY with a valid JSON object with these exact keys:
 
 Return only the JSON object. No preamble."""
 
-    raw = _call_nim(Config.MODEL_INTAKE, [{"role": "user", "content": prompt}], max_tokens=200, temperature=0.5)
+    raw = _call_nim(Config.MODEL_INTAKE, [{"role": "user", "content": prompt}], max_tokens=150, temperature=0.5)
 
     clean = raw.strip().strip("```json").strip("```").strip()
     try:
@@ -165,7 +165,7 @@ Create a complete workshop guide in Markdown format. Include:
 Be specific to their use case. Reference exact NVIDIA NIM endpoints and GCP services where relevant.
 Return only the Markdown content."""
 
-    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=2000)
+    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=800)
 
 
 def generate_hackathon_brief(intake: dict, recommendations: list) -> str:
@@ -197,7 +197,7 @@ Create a hackathon brief in Markdown format. Include:
 
 Make it energizing and technically specific. Return only the Markdown content."""
 
-    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=1500)
+    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=600)
 
 
 def generate_notebook(intake: dict, recommendations: list) -> str:
@@ -235,7 +235,7 @@ Use real NVIDIA NIM API patterns:
 
 Return ONLY valid nbformat 4.4 JSON. No preamble."""
 
-    raw = _call_nim(Config.MODEL_CODEGEN, [{"role": "user", "content": prompt}], max_tokens=3000, temperature=0.3)
+    raw = _call_nim(Config.MODEL_CODEGEN, [{"role": "user", "content": prompt}], max_tokens=800, temperature=0.3)
 
     clean = raw.strip()
     if clean.startswith("```"):
@@ -299,7 +299,7 @@ Respond ONLY with a valid JSON array. Each object must have:
 Return only the JSON array, no preamble."""
 
     try:
-        raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=1000)
+        raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=600)
         clean = raw.strip()
         if clean.startswith("```"):
             clean = clean.split("```")[1]
