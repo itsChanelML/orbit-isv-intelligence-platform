@@ -95,8 +95,6 @@ def step0_post():
         'contact_name': name,
         'contact_email': email,
         'company_website': website,
-        'prefill': prefill,
-        # Pre-populate from registry if found
         'company_name': prefill.get('company_name', '') if prefill else '',
         'company_description': prefill.get('description', '') if prefill else '',
         'tagline': prefill.get('tagline', '') if prefill else '',
