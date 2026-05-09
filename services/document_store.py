@@ -18,8 +18,8 @@ from datetime import datetime, timezone
 from typing import Optional
 
 
-DOCS_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'docs')
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOCS_DIR = os.path.join(BASE_DIR, 'data', 'docs')
 
 # ── Document Types ────────────────────────────────────────────────────────────
 

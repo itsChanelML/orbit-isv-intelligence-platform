@@ -4,9 +4,10 @@ import random
 import string
 from config import Config
 
-REGISTRY_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'isv_registry.json')
-CATALOG_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'nvidia_products_catalog.json')
-
+# Absolute path fix for Cloud Run compatibility
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REGISTRY_FILE = os.path.join(BASE_DIR, 'data', 'isv_registry.json')
+CATALOG_FILE = os.path.join(BASE_DIR, 'data', 'nvidia_products_catalog.json')
 
 def _load_registry():
     try:

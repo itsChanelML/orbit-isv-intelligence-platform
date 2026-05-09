@@ -20,7 +20,9 @@ from datetime import datetime, timezone
 from typing import Optional
 from collections import Counter
 
-COMMUNITY_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'community.json')
+# Absolute path fix for Cloud Run compatibility
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CATALOG_FILE = os.path.join(BASE_DIR, 'data', 'nvidia_products_catalog.json')
 
 # ── Categories ───────────────────────────────────────────────────────────────
 
