@@ -298,6 +298,12 @@ def step8_post():
     return redirect(url_for('output.generate'))
 
 
+@intake_bp.route('/intake/debug')
+@login_required
+def debug():
+    from flask import jsonify
+    return jsonify(dict(session.get('intake', {})))
+
 # Back navigation
 @intake_bp.route('/intake/step/<int:step>/back')
 @login_required
