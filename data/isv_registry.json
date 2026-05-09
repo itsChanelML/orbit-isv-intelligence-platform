@@ -1,0 +1,32 @@
+{
+  "luminahealth.ai": {
+    "company_name": "Lumina Health AI",
+    "industry": "Healthcare AI",
+    "description": "We build a real-time clinical decision support platform that helps emergency physicians identify sepsis and cardiac events faster using multimodal patient data including vitals, lab results, and imaging.",
+    "tagline": "Every second is a diagnosis.",
+    "problem_statement": "We're processing continuous streams of patient vitals alongside DICOM imaging data and need sub-200ms inference latency at scale. Our current CPU-based pipeline can't keep up with the volume across 12 hospital systems simultaneously. We need GPU-accelerated inference that doesn't require us to rebuild our entire data pipeline.",
+    "nvidia_products_current": ["DGX Cloud", "NIM", "MONAI"],
+    "nvidia_products_recommended": ["Clara", "Clara Holoscan", "BioNeMo"],
+    "nvidia_products_all": ["DGX Cloud", "NIM", "MONAI", "Clara", "Clara Holoscan", "BioNeMo", "TensorRT-LLM", "NeMo", "Riva"],
+    "contact_role": "Engineering Manager",
+    "tier": "Connect (ISV)",
+    "region": "North America",
+    "use_case": "Medical Imaging AI",
+    "registered": true
+  },
+  "nvidia.com": {
+    "company_name": "NVIDIA",
+    "industry": "Accelerated Computing",
+    "description": "NVIDIA builds accelerated computing platforms, GPUs, and AI software for the world's most demanding workloads.",
+    "tagline": "The engine of the world's AI infrastructure.",
+    "problem_statement": "Enabling the next wave of AI, robotics, and accelerated computing across every industry.",
+    "nvidia_products_current": ["DGX Cloud", "NIM", "CUDA", "TensorRT-LLM", "NeMo"],
+    "nvidia_products_recommended": ["Clara", "Omniverse", "Isaac"],
+    "nvidia_products_all": ["DGX Cloud", "NIM", "CUDA", "TensorRT-LLM", "NeMo", "Clara", "Omniverse", "Isaac", "Riva", "BioNeMo"],
+    "contact_role": "Developer Relations Manager",
+    "tier": "Elite",
+    "region": "Global",
+    "use_case": "Platform Development",
+    "registered": true
+  }
+}

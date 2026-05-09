@@ -1,0 +1,149 @@
+{
+  "catalog": [
+    {
+      "name": "DGX Cloud",
+      "category": "Infrastructure",
+      "description": "NVIDIA's managed AI supercomputing platform built on top of hyperscalers including GCP, Azure, and AWS.",
+      "url": "https://www.nvidia.com/en-us/data-center/dgx-cloud/",
+      "docs": "https://docs.nvidia.com/dgx-cloud/",
+      "use_cases": ["Model training", "Large-scale inference", "AI research"]
+    },
+    {
+      "name": "NIM",
+      "category": "Inference",
+      "description": "NVIDIA Inference Microservices -- optimized, containerized AI models deployable anywhere.",
+      "url": "https://developer.nvidia.com/nim",
+      "docs": "https://docs.nvidia.com/nim/",
+      "use_cases": ["Production inference", "LLM serving", "Embedding generation"]
+    },
+    {
+      "name": "MONAI",
+      "category": "Healthcare AI",
+      "description": "Medical Open Network for AI -- framework for deep learning in healthcare imaging.",
+      "url": "https://monai.io/",
+      "docs": "https://docs.monai.io/",
+      "use_cases": ["Medical imaging", "Radiology AI", "Clinical segmentation"]
+    },
+    {
+      "name": "Clara",
+      "category": "Healthcare AI",
+      "description": "NVIDIA Clara is a healthcare application framework for AI-powered medical imaging, genomics, and clinical workflows.",
+      "url": "https://developer.nvidia.com/clara",
+      "docs": "https://docs.nvidia.com/clara/",
+      "use_cases": ["Medical imaging AI", "Genomics", "Drug discovery", "Clinical decision support"]
+    },
+    {
+      "name": "Clara Holoscan",
+      "category": "Healthcare AI",
+      "description": "NVIDIA Clara Holoscan is a real-time AI platform for medical devices and surgical robotics.",
+      "url": "https://developer.nvidia.com/clara-holoscan",
+      "docs": "https://docs.nvidia.com/clara-holoscan/",
+      "use_cases": ["Surgical AI", "Medical devices", "Real-time imaging", "Endoscopy AI"]
+    },
+    {
+      "name": "BioNeMo",
+      "category": "Life Sciences AI",
+      "description": "NVIDIA BioNeMo is a generative AI platform for drug discovery and molecular biology.",
+      "url": "https://www.nvidia.com/en-us/clara/bionemo/",
+      "docs": "https://docs.nvidia.com/bionemo-framework/",
+      "use_cases": ["Drug discovery", "Protein structure prediction", "Molecular generation"]
+    },
+    {
+      "name": "NeMo",
+      "category": "LLM Training",
+      "description": "NVIDIA NeMo is an end-to-end framework for building, customizing, and deploying large language models.",
+      "url": "https://developer.nvidia.com/nemo",
+      "docs": "https://docs.nvidia.com/nemo-framework/",
+      "use_cases": ["LLM training", "Fine-tuning", "RLHF", "Custom model development"]
+    },
+    {
+      "name": "TensorRT-LLM",
+      "category": "Inference Optimization",
+      "description": "NVIDIA TensorRT-LLM is an open-source library for optimizing LLM inference on NVIDIA GPUs.",
+      "url": "https://developer.nvidia.com/tensorrt",
+      "docs": "https://nvidia.github.io/TensorRT-LLM/",
+      "use_cases": ["Inference optimization", "Low-latency serving", "Throughput scaling"]
+    },
+    {
+      "name": "Riva",
+      "category": "Speech AI",
+      "description": "NVIDIA Riva is a GPU-accelerated SDK for building speech AI applications.",
+      "url": "https://developer.nvidia.com/riva",
+      "docs": "https://docs.nvidia.com/deeplearning/riva/",
+      "use_cases": ["Speech recognition", "Text-to-speech", "Voice AI", "Real-time transcription"]
+    },
+    {
+      "name": "Omniverse",
+      "category": "Simulation",
+      "description": "NVIDIA Omniverse is a platform for building and operating metaverse applications and digital twins.",
+      "url": "https://developer.nvidia.com/omniverse",
+      "docs": "https://docs.omniverse.nvidia.com/",
+      "use_cases": ["Digital twins", "Simulation", "3D collaboration", "Robotics training"]
+    },
+    {
+      "name": "Isaac",
+      "category": "Robotics",
+      "description": "NVIDIA Isaac is an end-to-end robotics platform for simulation, training, and deployment.",
+      "url": "https://developer.nvidia.com/isaac",
+      "docs": "https://docs.nvidia.com/isaac/",
+      "use_cases": ["Robotics simulation", "Autonomous systems", "Warehouse automation"]
+    },
+    {
+      "name": "CUDA",
+      "category": "Core Platform",
+      "description": "NVIDIA CUDA is the parallel computing platform and API model for GPU-accelerated computing.",
+      "url": "https://developer.nvidia.com/cuda-zone",
+      "docs": "https://docs.nvidia.com/cuda/",
+      "use_cases": ["GPU programming", "Parallel computing", "Custom kernels", "Performance optimization"]
+    },
+    {
+      "name": "Triton Inference Server",
+      "category": "Inference",
+      "description": "NVIDIA Triton is an open-source inference serving software for deploying AI models at scale.",
+      "url": "https://developer.nvidia.com/triton-inference-server",
+      "docs": "https://docs.nvidia.com/deeplearning/triton-inference-server/",
+      "use_cases": ["Multi-model serving", "Production deployment", "Dynamic batching"]
+    },
+    {
+      "name": "Merlin",
+      "category": "Recommender Systems",
+      "description": "NVIDIA Merlin is an open-source framework for building large-scale deep learning recommender systems.",
+      "url": "https://developer.nvidia.com/nvidia-merlin",
+      "docs": "https://nvidia-merlin.github.io/",
+      "use_cases": ["Recommendation engines", "Personalization", "Ranking models"]
+    },
+    {
+      "name": "Metropolis",
+      "category": "Computer Vision",
+      "description": "NVIDIA Metropolis is an application framework for building AI-powered video analytics and intelligent video applications.",
+      "url": "https://developer.nvidia.com/metropolis",
+      "docs": "https://docs.nvidia.com/metropolis/",
+      "use_cases": ["Video analytics", "Smart cities", "Retail AI", "Security AI"]
+    },
+    {
+      "name": "Aerial",
+      "category": "Wireless",
+      "description": "NVIDIA Aerial is a GPU-accelerated 5G software platform for building AI-powered wireless networks.",
+      "url": "https://developer.nvidia.com/aerial-sdk",
+      "docs": "https://docs.nvidia.com/aerial/",
+      "use_cases": ["5G networks", "RAN acceleration", "Network AI"]
+    }
+  ],
+  "categories": [
+    "Infrastructure",
+    "Inference",
+    "Inference Optimization",
+    "LLM Training",
+    "Healthcare AI",
+    "Life Sciences AI",
+    "Speech AI",
+    "Computer Vision",
+    "Robotics",
+    "Simulation",
+    "Recommender Systems",
+    "Wireless",
+    "Core Platform"
+  ],
+  "last_updated": "2026-05-03",
+  "version": "1.0"
+}

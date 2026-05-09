@@ -1,0 +1,285 @@
+{
+  "categories": [
+    "LLM Orchestration & Agents",
+    "Model Hub & Fine-Tuning",
+    "Inference & Serving",
+    "Vector Databases & RAG",
+    "MLOps & Experiment Tracking",
+    "Training Frameworks",
+    "Data & Evaluation",
+    "Computer Vision",
+    "Speech & Audio"
+  ],
+  "tools": [
+    {
+      "name": "LangChain",
+      "category": "LLM Orchestration & Agents",
+      "github": "https://github.com/langchain-ai/langchain",
+      "docs": "https://docs.langchain.com",
+      "stars": "90k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "LlamaIndex",
+      "category": "LLM Orchestration & Agents",
+      "github": "https://github.com/run-llama/llama_index",
+      "docs": "https://docs.llamaindex.ai",
+      "stars": "35k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "AutoGen",
+      "category": "LLM Orchestration & Agents",
+      "github": "https://github.com/microsoft/autogen",
+      "docs": "https://microsoft.github.io/autogen",
+      "stars": "32k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "CrewAI",
+      "category": "LLM Orchestration & Agents",
+      "github": "https://github.com/crewAIInc/crewAI",
+      "docs": "https://docs.crewai.com",
+      "stars": "20k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Haystack",
+      "category": "LLM Orchestration & Agents",
+      "github": "https://github.com/deepset-ai/haystack",
+      "docs": "https://docs.haystack.deepset.ai",
+      "stars": "17k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "HuggingFace Transformers",
+      "category": "Model Hub & Fine-Tuning",
+      "github": "https://github.com/huggingface/transformers",
+      "docs": "https://huggingface.co/docs/transformers",
+      "stars": "130k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Unsloth",
+      "category": "Model Hub & Fine-Tuning",
+      "github": "https://github.com/unslothai/unsloth",
+      "docs": "https://docs.unsloth.ai",
+      "stars": "20k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "PEFT",
+      "category": "Model Hub & Fine-Tuning",
+      "github": "https://github.com/huggingface/peft",
+      "docs": "https://huggingface.co/docs/peft",
+      "stars": "16k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Axolotl",
+      "category": "Model Hub & Fine-Tuning",
+      "github": "https://github.com/axolotl-ai-cloud/axolotl",
+      "docs": "https://axolotl-ai-cloud.github.io/axolotl",
+      "stars": "8k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "TRL",
+      "category": "Model Hub & Fine-Tuning",
+      "github": "https://github.com/huggingface/trl",
+      "docs": "https://huggingface.co/docs/trl",
+      "stars": "10k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "vLLM",
+      "category": "Inference & Serving",
+      "github": "https://github.com/vllm-project/vllm",
+      "docs": "https://docs.vllm.ai",
+      "stars": "30k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Ollama",
+      "category": "Inference & Serving",
+      "github": "https://github.com/ollama/ollama",
+      "docs": "https://ollama.com/docs",
+      "stars": "85k+",
+      "language": "Go",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "llama.cpp",
+      "category": "Inference & Serving",
+      "github": "https://github.com/ggerganov/llama.cpp",
+      "docs": "https://github.com/ggerganov/llama.cpp",
+      "stars": "65k+",
+      "language": "C++",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Text Generation Inference",
+      "category": "Inference & Serving",
+      "github": "https://github.com/huggingface/text-generation-inference",
+      "docs": "https://huggingface.co/docs/text-generation-inference",
+      "stars": "9k+",
+      "language": "Python/Rust",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Chroma",
+      "category": "Vector Databases & RAG",
+      "github": "https://github.com/chroma-core/chroma",
+      "docs": "https://docs.trychroma.com",
+      "stars": "14k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Weaviate",
+      "category": "Vector Databases & RAG",
+      "github": "https://github.com/weaviate/weaviate",
+      "docs": "https://weaviate.io/developers/weaviate",
+      "stars": "10k+",
+      "language": "Go",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Qdrant",
+      "category": "Vector Databases & RAG",
+      "github": "https://github.com/qdrant/qdrant",
+      "docs": "https://qdrant.tech/documentation",
+      "stars": "20k+",
+      "language": "Rust",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "FAISS",
+      "category": "Vector Databases & RAG",
+      "github": "https://github.com/facebookresearch/faiss",
+      "docs": "https://faiss.ai",
+      "stars": "30k+",
+      "language": "C++/Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Weights & Biases",
+      "category": "MLOps & Experiment Tracking",
+      "github": "https://github.com/wandb/wandb",
+      "docs": "https://docs.wandb.ai",
+      "stars": "9k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "MLflow",
+      "category": "MLOps & Experiment Tracking",
+      "github": "https://github.com/mlflow/mlflow",
+      "docs": "https://mlflow.org/docs/latest",
+      "stars": "18k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Ray",
+      "category": "MLOps & Experiment Tracking",
+      "github": "https://github.com/ray-project/ray",
+      "docs": "https://docs.ray.io",
+      "stars": "33k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "DVC",
+      "category": "MLOps & Experiment Tracking",
+      "github": "https://github.com/iterative/dvc",
+      "docs": "https://dvc.org/doc",
+      "stars": "13k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "PyTorch",
+      "category": "Training Frameworks",
+      "github": "https://github.com/pytorch/pytorch",
+      "docs": "https://pytorch.org/docs",
+      "stars": "80k+",
+      "language": "Python/C++",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "DeepSpeed",
+      "category": "Training Frameworks",
+      "github": "https://github.com/microsoft/DeepSpeed",
+      "docs": "https://deepspeed.readthedocs.io",
+      "stars": "35k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "JAX",
+      "category": "Training Frameworks",
+      "github": "https://github.com/google/jax",
+      "docs": "https://jax.readthedocs.io",
+      "stars": "30k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Megatron-LM",
+      "category": "Training Frameworks",
+      "github": "https://github.com/NVIDIA/Megatron-LM",
+      "docs": "https://github.com/NVIDIA/Megatron-LM",
+      "stars": "10k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "RAGAS",
+      "category": "Data & Evaluation",
+      "github": "https://github.com/explodinggradients/ragas",
+      "docs": "https://docs.ragas.io",
+      "stars": "7k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "LangSmith",
+      "category": "Data & Evaluation",
+      "github": "https://github.com/langchain-ai/langsmith-sdk",
+      "docs": "https://docs.smith.langchain.com",
+      "stars": "3k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "OpenCV",
+      "category": "Computer Vision",
+      "github": "https://github.com/opencv/opencv",
+      "docs": "https://docs.opencv.org",
+      "stars": "77k+",
+      "language": "C++/Python",
+      "nvidia_compatible": true
+    },
+    {
+      "name": "Whisper",
+      "category": "Speech & Audio",
+      "github": "https://github.com/openai/whisper",
+      "docs": "https://github.com/openai/whisper",
+      "stars": "70k+",
+      "language": "Python",
+      "nvidia_compatible": true
+    }
+  ]
+}
