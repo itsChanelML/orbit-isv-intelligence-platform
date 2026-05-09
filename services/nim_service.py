@@ -4,7 +4,7 @@ import requests
 from config import Config
 
 
-def _call_nim(model, messages, max_tokens=1000, temperature=0.7):
+def _call_nim(model, messages, max_tokens=500, temperature=0.7):
     """Base NIM API call using OpenAI-compatible endpoint."""
     headers = {
         "Authorization": f"Bearer {Config.NVIDIA_API_KEY}",
@@ -67,7 +67,7 @@ Respond ONLY with a valid JSON array of exactly 3 objects. Each object must have
 
 Return only the JSON array. No preamble, no markdown, no explanation."""
 
-    raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=800)
+    raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=500)
 
     # Clean and parse JSON
     clean = raw.strip()
@@ -76,17 +76,6 @@ Return only the JSON array. No preamble, no markdown, no explanation."""
         if clean.startswith("json"):
             clean = clean[4:]
     clean = clean.strip()
-    # Find the actual JSON array start
-    if not clean.startswith("["):
-        start = clean.find("[")
-        if start != -1:
-            clean = clean[start:]
-    end = clean.rfind("]")
-    if end != -1:
-        clean = clean[:end+1]
-    # Fix malformed array -- Nemotron sometimes drops { after [
-    if clean.startswith('["') or clean.startswith("['"):
-        clean = clean[0] + '{' + clean[1:]
 
     try:
         return json.loads(clean)
@@ -119,7 +108,7 @@ Respond ONLY with a valid JSON object with these exact keys:
 
 Return only the JSON object. No preamble."""
 
-    raw = _call_nim(Config.MODEL_INTAKE, [{"role": "user", "content": prompt}], max_tokens=150, temperature=0.5)
+    raw = _call_nim(Config.MODEL_INTAKE, [{"role": "user", "content": prompt}], max_tokens=200, temperature=0.5)
 
     clean = raw.strip().strip("```json").strip("```").strip()
     try:
@@ -165,7 +154,7 @@ Create a complete workshop guide in Markdown format. Include:
 Be specific to their use case. Reference exact NVIDIA NIM endpoints and GCP services where relevant.
 Return only the Markdown content."""
 
-    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=800)
+    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=600)
 
 
 def generate_hackathon_brief(intake: dict, recommendations: list) -> str:
@@ -197,7 +186,7 @@ Create a hackathon brief in Markdown format. Include:
 
 Make it energizing and technically specific. Return only the Markdown content."""
 
-    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=600)
+    return _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=500)
 
 
 def generate_notebook(intake: dict, recommendations: list) -> str:
@@ -299,7 +288,7 @@ Respond ONLY with a valid JSON array. Each object must have:
 Return only the JSON array, no preamble."""
 
     try:
-        raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=600)
+        raw = _call_nim(Config.MODEL_PRIMARY, [{"role": "user", "content": prompt}], max_tokens=1000)
         clean = raw.strip()
         if clean.startswith("```"):
             clean = clean.split("```")[1]

@@ -1,3 +1,4 @@
+import os
 import json
 import markdown as md
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, Response
@@ -97,28 +98,21 @@ def run():
         except Exception:
             pass
 
-        # Generate concern responses
-        try:
-            from services.nim_service import generate_concern_responses
-            concerns = intake.get('adoption_concerns', [])
-            concern_responses = generate_concern_responses(intake, concerns) if concerns else []
-            session['concern_responses'] = concern_responses
-        except Exception:
-            session['concern_responses'] = []
+        # Concern responses skipped during generation to reduce latency
+        # They load async on the results page
+        session['concern_responses'] = []
 
         # Save adoption strategy to history
         try:
             from datetime import datetime, timezone
             strategies = session.get('adoption_strategies', [])
-            # Generate short title from problem statement
             problem = intake.get('problem_statement', '')
             tools = intake.get('selected_tools', [])
             fmt = primary_format.title()
             tool_str = tools[0].title() if tools else 'DGX'
-            # Take first 4-5 words of problem
             words = problem.split()[:4]
             short_title = ' '.join(words) + f' {fmt}' if words else f'{tool_str} {fmt}'
-            short_title = short_title[:35]  # Cap at 35 chars
+            short_title = short_title[:35]
 
             strategies.append({
                 'id': len(strategies) + 1,
@@ -164,7 +158,7 @@ def results():
 
     # Convert markdown to HTML for preview
     deliverable_html = ''
-    if primary_format in ['workshop', 'hackathon']:
+    if primary_format in ['workshop', 'hackathon', 'exec_brief']:
         deliverable_html = md.markdown(deliverable_content, extensions=['fenced_code', 'tables'])
 
     # Parse notebook cells for preview
@@ -193,6 +187,28 @@ def results():
         stack_items=session.get('tech_stack', []),
         role=session.get('role', 'isv')
     )
+
+
+@output_bp.route('/output/concerns')
+@login_required
+def load_concerns():
+    """
+    Async endpoint called by JS on results page to generate concern responses.
+    Runs after results page loads so it doesn't block the main generation.
+    """
+    intake = session.get('intake', {})
+    concerns = intake.get('adoption_concerns', [])
+
+    if not concerns:
+        return jsonify({'concern_responses': []})
+
+    try:
+        from services.nim_service import generate_concern_responses
+        concern_responses = generate_concern_responses(intake, concerns)
+        session['concern_responses'] = concern_responses
+        return jsonify({'concern_responses': concern_responses})
+    except Exception as e:
+        return jsonify({'concern_responses': [], 'error': str(e)})
 
 
 @output_bp.route('/output/download/<format_type>')
@@ -229,6 +245,7 @@ def download(format_type):
 @login_required
 def reset():
     for key in ['intake', 'recommendations', 'learning_style',
-                'deliverable_content', 'primary_format', 'output_ready']:
+                'deliverable_content', 'primary_format', 'output_ready',
+                'concern_responses', 'adoption_strategies', 'tech_stack']:
         session.pop(key, None)
     return redirect(url_for('intake.index'))
