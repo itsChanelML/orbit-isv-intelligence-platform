@@ -136,11 +136,9 @@
             <h2 class="intake-question">
                 {% if intake.found_in_registry %}We know your company.{% else %}We found your company.{% endif %}
             </h2>
-            {% if intake.welcome_message %}
-            <p class="intake-hint">{{ intake.welcome_message }}</p>
-            {% else %}
-            <p class="intake-hint">Confirm your details below. Edit anything that looks wrong before continuing.</p>
-            {% endif %}
+            <p class="intake-hint" id="welcomeHint">
+                {% if intake.welcome_message %}{{ intake.welcome_message }}{% else %}Confirm your details below. Edit anything that looks wrong before continuing.{% endif %}
+            </p>
 
             <form method="POST" action="/intake/step/0b">
                 <div class="intake-input-group">
@@ -164,14 +162,14 @@
 
                     <div class="intake-field">
                         <label class="intake-field-label">Company Name</label>
-                        <input class="intake-input" type="text" name="company_name"
+                        <input class="intake-input" type="text" name="company_name" id="prefillCompanyName"
                             placeholder="e.g. Lumina Health AI"
                             value="{{ intake.company_name or '' }}" required />
                     </div>
 
                     <div class="intake-field">
                         <label class="intake-field-label">Your Role</label>
-                        <input class="intake-input" type="text" name="contact_role"
+                        <input class="intake-input" type="text" name="contact_role" id="prefillRole"
                             placeholder="e.g. CTO, Engineering Manager, Founder"
                             value="{{ intake.contact_role or '' }}" required />
                     </div>
@@ -193,6 +191,40 @@
                     <button type="submit" class="intake-btn-next">Confirm & Continue →</button>
                 </div>
             </form>
+
+            <script>
+            // Async Nemotron prefill -- runs after page loads, updates fields when ready
+            (async function() {
+                const nameField = document.getElementById('prefillCompanyName');
+                const roleField = document.getElementById('prefillRole');
+                const hint = document.getElementById('welcomeHint');
+                // Only call NIM if fields are empty
+                if (nameField && roleField && (!nameField.value || !roleField.value)) {
+                    try {
+                        const res = await fetch('/intake/prefill', { method: 'POST' });
+                        const data = await res.json();
+                        if (data.status === 'ok' && data.prefill) {
+                            const p = data.prefill;
+                            if (p.company_name && !nameField.value) {
+                                nameField.value = p.company_name;
+                                nameField.style.borderColor = 'var(--nvidia-green)';
+                                setTimeout(() => nameField.style.borderColor = '', 2000);
+                            }
+                            if (p.contact_role && !roleField.value) {
+                                roleField.value = p.contact_role;
+                                roleField.style.borderColor = 'var(--nvidia-green)';
+                                setTimeout(() => roleField.style.borderColor = '', 2000);
+                            }
+                            if (hint && p.welcome_message) {
+                                hint.textContent = p.welcome_message;
+                            }
+                        }
+                    } catch(e) {
+                        // Silent fail -- user can fill in manually
+                    }
+                }
+            })();
+            </script>
 
             <!-- STEP 1: Company details -->
             {% elif step == 1 %}

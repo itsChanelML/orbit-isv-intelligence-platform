@@ -34,27 +34,7 @@ def domains_match(email, website):
 @intake_bp.route('/intake')
 @login_required
 def index():
-    # Preserve identity from previous session
-    previous_intake = session.get('intake', {})
-    identity_keys = ['contact_name', 'contact_email', 'company_website',
-                     'company_name', 'contact_role', 'found_in_registry',
-                     'nvidia_products', 'tier', 'welcome_message',
-                     'company_description', 'tagline', 'problem_statement']
-    preserved = {k: previous_intake.get(k) for k in identity_keys if previous_intake.get(k)}
-
-    # Clear output session data
-    for key in ['recommendations', 'learning_style', 'deliverable_path',
-                'deliverable_content', 'primary_format', 'output_ready',
-                'concern_responses']:
-        session.pop(key, None)
-
-    # Restore identity
-    session['intake'] = preserved
-
-    # Skip to step 3 if returning user
-    if preserved.get('contact_email'):
-        return redirect(url_for('intake.step', step=3))
-
+    session['intake'] = {}
     return redirect(url_for('intake.step0'))
 
 
@@ -88,11 +68,26 @@ def step0_post():
     otp = generate_otp()
     session['otp'] = otp
 
-    # Registry lookup + Nemotron pre-fill
+    # Registry lookup -- direct JSON read, no NIM call (instant)
     domain = extract_domain(email)
     try:
-        from services.registry_service import prefill_from_registry
-        prefill = prefill_from_registry(domain, name)
+        from services.registry_service import lookup_isv
+        profile = lookup_isv(domain)
+        if profile:
+            prefill = {
+                'found_in_registry': True,
+                'welcome_message': f"Welcome, {name}. We found {profile['company_name']} in the NVIDIA ISV registry.",
+                'company_name': profile['company_name'],
+                'description': profile['description'],
+                'tagline': profile['tagline'],
+                'problem_statement': profile.get('problem_statement', ''),
+                'contact_role': profile.get('contact_role', ''),
+                'recommended_products': profile.get('nvidia_products_recommended', []),
+                'nvidia_products': profile.get('nvidia_products_all', []),
+                'tier': profile.get('tier', 'Inception')
+            }
+        else:
+            prefill = None
     except Exception:
         prefill = None
 
@@ -140,6 +135,38 @@ def step0c_post():
             error='Incorrect verification code. Please try again.')
 
     return redirect(url_for('intake.step0b'))
+
+
+# ── Async NIM prefill endpoint ──
+@intake_bp.route('/intake/prefill', methods=['POST'])
+@login_required
+def async_prefill():
+    """
+    Called by JS after step 0b loads.
+    Runs Nemotron prefill in background and returns polished data.
+    """
+    intake = get_intake()
+    domain = extract_domain(intake.get('contact_email', ''))
+    name = intake.get('contact_name', '')
+
+    try:
+        from services.registry_service import prefill_from_registry
+        from flask import jsonify
+        prefill = prefill_from_registry(domain, name)
+        if prefill:
+            # Update session with polished data
+            save_intake({
+                'company_name': prefill.get('company_name', intake.get('company_name', '')),
+                'company_description': prefill.get('description', ''),
+                'tagline': prefill.get('tagline', ''),
+                'problem_statement': prefill.get('problem_statement', ''),
+                'contact_role': prefill.get('contact_role', intake.get('contact_role', '')),
+                'welcome_message': prefill.get('welcome_message', ''),
+            })
+            return jsonify({'status': 'ok', 'prefill': prefill})
+        return jsonify({'status': 'not_found'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
 
 
 # ── Step 0b: Confirm company + role ──
