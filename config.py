@@ -3,10 +3,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+_DEV_SECRET_KEY = 'orbit-dev-secret-key'
+
 class Config:
     # Flask
-    SECRET_KEY = os.getenv('SECRET_KEY', 'orbit-dev-secret-key')
-    DEBUG = os.getenv('DEBUG', 'True') == 'True'
+    SECRET_KEY = os.getenv('SECRET_KEY', _DEV_SECRET_KEY)
+    DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
     # Access codes (role-based auth V1)
     ISV_ACCESS_CODE = os.getenv('ISV_ACCESS_CODE', 'ORBIT-ISV-2025')
@@ -36,3 +38,10 @@ class Config:
     # Session
     SESSION_TYPE = 'filesystem'
     PERMANENT_SESSION_LIFETIME = 3600  # 1 hour
+
+
+if not Config.DEBUG and Config.SECRET_KEY == _DEV_SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is not set. Refusing to start with DEBUG=False and the "
+        "default development secret key — set SECRET_KEY in the environment."
+    )
