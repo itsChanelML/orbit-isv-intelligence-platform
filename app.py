@@ -1,4 +1,6 @@
+import os
 from flask import Flask
+from flask_session import Session
 from config import Config
 from routes.auth import auth_bp
 from routes.intake import intake_bp
@@ -11,6 +13,8 @@ from routes.community import community_bp
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+    Session(app)
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(intake_bp)
@@ -24,4 +28,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True, port=5000)
+    app.run(debug=Config.DEBUG, port=5000)

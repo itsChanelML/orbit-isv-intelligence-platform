@@ -1,0 +1,7 @@
+venv/
+.env
+service-account*.json
+deploy.sh
+__pycache__/
+Dockerfile
+cloudbuild.yaml

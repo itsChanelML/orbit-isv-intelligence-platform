@@ -2,9 +2,9 @@ import json
 import os
 from datetime import datetime, timezone
 from collections import Counter
-from config import Config
+from config import Config, WRITABLE_DATA_DIR
 
-ANALYTICS_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'analytics.json')
+ANALYTICS_FILE = os.path.join(WRITABLE_DATA_DIR, 'analytics.json')
 
 
 def _load():

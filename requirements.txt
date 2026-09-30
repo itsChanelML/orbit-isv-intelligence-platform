@@ -10,3 +10,4 @@ ipinfo==5.0.1
 markdown==3.6
 nbformat==5.10.4
 gunicorn==21.2.0
+redis==5.0.4

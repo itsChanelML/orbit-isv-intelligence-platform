@@ -18,14 +18,16 @@ def login():
 @auth_bp.route('/login', methods=['POST'])
 def login_post():
     code = request.form.get('access_code', '').strip().upper()
+    admin_code = (Config.ADMIN_ACCESS_CODE or '').upper()
+    isv_code = (Config.ISV_ACCESS_CODE or '').upper()
 
-    if code == Config.ADMIN_ACCESS_CODE.upper():
+    if admin_code and code == admin_code:
         session['role'] = 'admin'
         session['access_code'] = code
         session.permanent = True
         return redirect(url_for('admin.dashboard'))
 
-    elif code == Config.ISV_ACCESS_CODE.upper():
+    elif isv_code and code == isv_code:
         session['role'] = 'isv'
         session['access_code'] = code
         session.permanent = True
