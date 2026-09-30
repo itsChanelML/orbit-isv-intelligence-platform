@@ -10,13 +10,14 @@ import json
 import os
 import hashlib
 from typing import Optional
+from config import WRITABLE_DATA_DIR
 from datetime import datetime, timezone
 
 # File paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NVIDIA_CATALOG_FILE = os.path.join(BASE_DIR, 'data', 'nvidia_products_catalog.json')
 OSS_CATALOG_FILE = os.path.join(BASE_DIR, 'data', 'oss_tools_catalog.json')
-TOOLS_CACHE_FILE = os.path.join(BASE_DIR, 'data', 'tools_cache.json')
+TOOLS_CACHE_FILE = os.path.join(WRITABLE_DATA_DIR, 'tools_cache.json')
 
 # ── Catalog Loaders ──────────────────────────────────────────────────────────
 

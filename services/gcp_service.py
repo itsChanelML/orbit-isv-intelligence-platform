@@ -3,9 +3,9 @@ import os
 from datetime import datetime, timezone
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from config import Config
+from config import Config, WRITABLE_DATA_DIR
 
-GCP_STATE_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'gcp_state.json')
+GCP_STATE_FILE = os.path.join(WRITABLE_DATA_DIR, 'gcp_state.json')
 
 # GCP APIs we care about surfacing to ISVs
 RELEVANT_APIS = {

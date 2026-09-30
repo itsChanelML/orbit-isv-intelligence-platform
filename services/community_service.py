@@ -18,10 +18,12 @@ import os
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
+from config import WRITABLE_DATA_DIR
 from collections import Counter
 
 # Absolute path fix for Cloud Run compatibility
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+COMMUNITY_FILE = os.path.join(WRITABLE_DATA_DIR, 'community.json')
 CATALOG_FILE = os.path.join(BASE_DIR, 'data', 'nvidia_products_catalog.json')
 
 # ── Categories ───────────────────────────────────────────────────────────────

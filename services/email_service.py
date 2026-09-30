@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timezone
-from config import Config
+from config import Config, WRITABLE_DATA_DIR
 
 
 def send_monthly_report(report_md: str, stats: dict) -> dict:
@@ -125,7 +125,7 @@ def should_send_monthly_report() -> bool:
     last_day = calendar.monthrange(now.year, now.month)[1]
 
     # Check state file
-    state_file = os.path.join('data', 'email_state.json')
+    state_file = os.path.join(WRITABLE_DATA_DIR, 'email_state.json')
     try:
         import json
         with open(state_file, 'r') as f:
@@ -143,8 +143,8 @@ def should_send_monthly_report() -> bool:
 def mark_report_sent():
     """Mark that the monthly report was sent."""
     import json
-    state_file = os.path.join('data', 'email_state.json')
-    os.makedirs('data', exist_ok=True)
+    state_file = os.path.join(WRITABLE_DATA_DIR, 'email_state.json')
+    os.makedirs(WRITABLE_DATA_DIR, exist_ok=True)
     now = datetime.now(timezone.utc)
     with open(state_file, 'w') as f:
         json.dump({'last_report_sent': now.isoformat()}, f)

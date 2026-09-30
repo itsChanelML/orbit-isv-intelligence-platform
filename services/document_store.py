@@ -16,10 +16,11 @@ import os
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
+from config import WRITABLE_DATA_DIR
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DOCS_DIR = os.path.join(BASE_DIR, 'data', 'docs')
+DOCS_DIR = os.path.join(WRITABLE_DATA_DIR, 'docs')
 
 # ── Document Types ────────────────────────────────────────────────────────────
 

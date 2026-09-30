@@ -116,7 +116,7 @@ def download_document(doc_id):
     return Response(
         content,
         mimetype=mimetype,
-        headers={'Content-Disposition': f'attachment; filename={filename}'}
+        headers={'Content-Disposition': f'attachment; filename="{filename.replace(chr(34), "")}"'}
     )
 
 
